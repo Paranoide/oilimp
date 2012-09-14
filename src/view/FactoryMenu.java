@@ -319,7 +319,6 @@ public class FactoryMenu extends OilImpMenu
         else if (this.autoThread.isAlive() && !working)
         {
             this.autoThread.interrupt();
-            this.autoThread = new Thread(new AutoThread());
             this.threadIsRunning = false;
             System.out.println("Ending thread");
         }

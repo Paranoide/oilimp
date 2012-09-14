@@ -106,6 +106,7 @@ public class OilImpGUI
 
         this.factoryMenu = new FactoryMenu(this.game, oilFieldNames[0]);
         this.menuPanel.add(this.factoryMenu, FACTORY_ID);
+        this.factoryMenu.defaultAction();
 
 
         this.menuPanel.add(new JPanel(), REFINERY_ID);

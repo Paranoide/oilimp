@@ -30,6 +30,8 @@ import javax.swing.JDialog;
 
 import java.awt.event.*;
 
+import java.io.*;
+
 import view.LoginForm;
 
 public class OilImp
@@ -232,6 +234,35 @@ public class OilImp
         boolean loggedIn = false;
         int attempts = 0;
         final int MAX_ATTEMPTS = 3;
+
+        // DEBUG
+        BufferedReader tmpBr = null;
+        try 
+        {
+            tmpBr = new BufferedReader(
+                        new FileReader(
+                            System.getProperty(
+                                "user.dir") + "/debug_login.txt"));
+            this.username = tmpBr.readLine();
+            this.password = tmpBr.readLine();
+
+            tmpBr.close();
+        }
+        catch (IOException ioe)
+        {
+            ioe.printStackTrace();
+            try
+            {
+                tmpBr.close();
+            }
+            catch (IOException ioe2)
+            {
+                ioe2.printStackTrace();
+            }
+        }
+        // DEBUG
+
+
 
 
         while (!loggedIn)
