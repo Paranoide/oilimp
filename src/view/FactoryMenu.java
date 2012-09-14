@@ -121,21 +121,25 @@ public class FactoryMenu extends OilImpMenu
 
 
         // CheckBoxPanel
-        this.checkBoxPanel = new JPanel(new GridLayout(9 + 1, 3));
+        this.checkBoxPanel = new JPanel(new GridLayout(9 + 1, 1));
         this.checkBoxPanelBorder = createBorder("Auto?", FONT_ROMAN_14, 0);
         this.checkBoxPanel.setBorder(this.checkBoxPanelBorder);
-//            this.checkBoxPanel.setPreferredSize(new Dimension(70, 500));
         this.autoCheckBoxes = new JCheckBox[9];
-
-        this.checkBoxPanel.add(Box.createHorizontalBox());
-        this.checkBoxPanel.add(Box.createHorizontalBox());
-        this.checkBoxPanel.add(Box.createHorizontalBox());
+        
+        JPanel tmpTFPanel = new JPanel(new GridLayout(1, 3));
+        tmpTFPanel.add(Box.createHorizontalBox());
+        tmpTFPanel.add(Box.createHorizontalBox());
+        tmpTFPanel.add(Box.createHorizontalBox());
+        this.checkBoxPanel.add(tmpTFPanel);
         for (int t = 0; t < 9; t++)
         {
-            this.checkBoxPanel.add(Box.createHorizontalBox());
+            JPanel tmpCBPanel = new JPanel(new GridLayout(1, 3));
+            tmpCBPanel.add(Box.createHorizontalBox());
             this.autoCheckBoxes[t] = new JCheckBox();
-            this.checkBoxPanel.add(this.autoCheckBoxes[t]);
-            this.checkBoxPanel.add(Box.createHorizontalBox());
+            tmpCBPanel.add(this.autoCheckBoxes[t]);
+            tmpCBPanel.add(Box.createHorizontalBox());
+            
+            this.checkBoxPanel.add(tmpCBPanel);
         }
 
         this.add(this.checkBoxPanel, BorderLayout.EAST);
