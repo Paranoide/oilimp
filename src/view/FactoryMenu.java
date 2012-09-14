@@ -126,10 +126,8 @@ public class FactoryMenu extends OilImpMenu
         this.checkBoxPanel.setBorder(this.checkBoxPanelBorder);
         this.autoCheckBoxes = new JCheckBox[9];
         
-        JPanel tmpTFPanel = new JPanel(new GridLayout(1, 3));
-        tmpTFPanel.add(Box.createHorizontalBox());
-        tmpTFPanel.add(Box.createHorizontalBox());
-        tmpTFPanel.add(Box.createHorizontalBox());
+        JPanel tmpTFPanel = new JPanel(new GridLayout(1, 1));
+        tmpTFPanel.add(new JTextField("TEST"));
         this.checkBoxPanel.add(tmpTFPanel);
         for (int t = 0; t < 9; t++)
         {
