@@ -234,15 +234,14 @@ public class OilImp
         boolean loggedIn = false;
         int attempts = 0;
         final int MAX_ATTEMPTS = 3;
-
-        // DEBUG
+        
+        // DEBUG ---------------------------------------------------------------
         BufferedReader tmpBr = null;
         try 
         {
-            tmpBr = new BufferedReader(
-                        new FileReader(
-                            System.getProperty(
-                                "user.dir") + "/debug_login.txt"));
+            String filePath = System.getProperty("user.dir") + "/debug_login.txt";
+            
+            tmpBr = new BufferedReader(new FileReader(filePath));
             this.username = tmpBr.readLine();
             this.password = tmpBr.readLine();
 
@@ -250,17 +249,23 @@ public class OilImp
         }
         catch (IOException ioe)
         {
-            ioe.printStackTrace();
+            System.err.println("No debug login information...asking for it!");
             try
             {
                 tmpBr.close();
             }
+            catch (NullPointerException npe) {}
             catch (IOException ioe2)
             {
                 ioe2.printStackTrace();
             }
+            finally
+            {
+                this.username = "";
+                this.password = "";
+            }
         }
-        // DEBUG
+        // DEBUG ---------------------------------------------------------------
 
 
 
