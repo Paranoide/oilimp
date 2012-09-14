@@ -103,11 +103,10 @@ public class OilImpGUI
         this.menuPanelCards = new CardLayout();
         this.menuPanel = new JPanel(this.menuPanelCards);
         this.mainPanel.add(this.menuPanel, BorderLayout.CENTER);
-
+        
         this.factoryMenu = new FactoryMenu(this.game, oilFieldNames[0]);
         this.menuPanel.add(this.factoryMenu, FACTORY_ID);
         this.factoryMenu.defaultAction();
-
 
         this.menuPanel.add(new JPanel(), REFINERY_ID);
         

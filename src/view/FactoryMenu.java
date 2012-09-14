@@ -333,10 +333,12 @@ public class FactoryMenu extends OilImpMenu
         this.factoryInfo.setAuto(oilField, eqNr, on);
     }
 
+    @Override
     public void defaultAction()
     {
         new Thread(new Runnable()
         {
+            @Override
             public void run()
             {
                 getFactoryStatus();

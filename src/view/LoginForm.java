@@ -33,7 +33,7 @@ public class LoginForm extends JFrame
     public LoginForm()
     {
         this.setSize(500, 220);
-        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
         this.mainPanel = new JPanel(new BorderLayout(5, 5));
         this.mainPanelBorder = createBorder("Login", BORDER_FONT, 0);
