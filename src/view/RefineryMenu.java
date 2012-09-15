@@ -22,14 +22,19 @@ public class RefineryMenu extends OilImpMenu
     String currentOilField;
     
     JPanel infoPanel;
-    JPanel ressLabelPanel;
-    JLabel[] ressLabels;
+    TitledBorder infoPanelBorder;
+    JPanel ressNamePanel;
+    JLabel[] ressNameLabels;
+    TitledBorder ressNamePanelBorder;
     JPanel currentRessPanel;
     JLabel[] currentRessLabels;
+    TitledBorder currentRessPanelBorder;
     JPanel afterwardsRessPanel;
     JLabel[] afterwardsRessLabels;
+    TitledBorder afterwardsRessPanelBorder;
     JPanel capacityPanel;
     JLabel[] capacityLabels;
+    TitledBorder capacityPanelBorder;
     
     
     JPanel actionPanel;
@@ -39,24 +44,38 @@ public class RefineryMenu extends OilImpMenu
         this.game = game;
         this.currentOilField = startOilField;
         
-        this.setLayout(new GridLayout(1, 2));
+        this.setLayout(new GridLayout(2, 1));
         
         this.infoPanel           = new JPanel(new GridLayout(1, 4));
-        this.ressLabelPanel      = new JPanel(new GridLayout(5, 1));
-        this.currentRessPanel    = new JPanel(new GridLayout(5, 1));
-        this.afterwardsRessPanel = new JPanel(new GridLayout(5, 1));
-        this.capacityPanel       = new JPanel(new GridLayout(5, 1));
+        this.infoPanelBorder = createBorder("Information", BORDER_FONT, 0);
+        this.infoPanel.setBorder(this.infoPanelBorder);
         
-        this.ressLabels = new JLabel[5];
-        this.ressLabels[0] = new JLabel("Freie MAs");
-        this.ressLabels[1] = new JLabel("Rohoel");
-        this.ressLabels[2] = new JLabel("Kerosin");
-        this.ressLabels[3] = new JLabel("Diesel");
-        this.ressLabels[4] = new JLabel("Benzin");
-        for (int t = 0; t < this.ressLabels.length; t++)
+        this.ressNamePanel      = new JPanel(new GridLayout(5, 1));
+        this.ressNamePanelBorder = createBorder("Ressource", BORDER_SMALL_FONT, 0);
+        this.ressNamePanel.setBorder(this.ressNamePanelBorder);
+        
+        this.currentRessPanel    = new JPanel(new GridLayout(5, 1));
+        this.currentRessPanelBorder = createBorder("Jetzt", BORDER_SMALL_FONT, 0);
+        this.currentRessPanel.setBorder(this.currentRessPanelBorder);
+        
+        this.afterwardsRessPanel = new JPanel(new GridLayout(5, 1));
+        this.afterwardsRessPanelBorder = createBorder("Danach", BORDER_SMALL_FONT, 0);
+        this.afterwardsRessPanel.setBorder(this.afterwardsRessPanelBorder);
+        
+        this.capacityPanel       = new JPanel(new GridLayout(5, 1));
+        this.capacityPanelBorder = createBorder("Kapazitaet", BORDER_SMALL_FONT, 0);
+        this.capacityPanel.setBorder(this.capacityPanelBorder);
+        
+        this.ressNameLabels = new JLabel[5];
+        this.ressNameLabels[0] = new JLabel("Freie MAs");
+        this.ressNameLabels[1] = new JLabel("Rohoel");
+        this.ressNameLabels[2] = new JLabel("Kerosin");
+        this.ressNameLabels[3] = new JLabel("Diesel");
+        this.ressNameLabels[4] = new JLabel("Benzin");
+        for (int t = 0; t < this.ressNameLabels.length; t++)
         {
-            this.ressLabels[t].setFont(LABEL_FONT);
-            this.ressLabelPanel.add(this.ressLabels[t]);
+            this.ressNameLabels[t].setFont(HEADLINE_FONT);
+            this.ressNamePanel.add(this.ressNameLabels[t]);
         }
         
         this.currentRessLabels = new JLabel[5];
@@ -95,7 +114,7 @@ public class RefineryMenu extends OilImpMenu
             this.capacityPanel.add(this.capacityLabels[t]);
         }
         
-        this.infoPanel.add(this.ressLabelPanel);
+        this.infoPanel.add(this.ressNamePanel);
         this.infoPanel.add(this.currentRessPanel);
         this.infoPanel.add(this.afterwardsRessPanel);
         this.infoPanel.add(this.capacityPanel);
