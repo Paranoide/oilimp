@@ -55,7 +55,7 @@ public class RefineryMenu extends OilImpMenu
         this.ressLabels[4] = new JLabel("Benzin");
         for (int t = 0; t < this.ressLabels.length; t++)
         {
-            this.ressLabelPanel.setFont(LABEL_FONT);
+            this.ressLabels[t].setFont(LABEL_FONT);
             this.ressLabelPanel.add(this.ressLabels[t]);
         }
         
@@ -67,7 +67,7 @@ public class RefineryMenu extends OilImpMenu
         this.currentRessLabels[4] = new JLabel("50232");
         for (int t = 0; t < this.currentRessLabels.length; t++)
         {
-            this.currentRessPanel.setFont(LABEL_FONT);
+            this.currentRessLabels[t].setFont(LABEL_FONT);
             this.currentRessPanel.add(this.currentRessLabels[t]);
         }
         
@@ -79,7 +79,7 @@ public class RefineryMenu extends OilImpMenu
         this.afterwardsRessLabels[4] = new JLabel("50232");
         for (int t = 0; t < this.afterwardsRessLabels.length; t++)
         {
-            this.afterwardsRessPanel.setFont(LABEL_FONT);
+            this.afterwardsRessLabels[t].setFont(LABEL_FONT);
             this.afterwardsRessPanel.add(this.afterwardsRessLabels[t]);
         }
         
@@ -91,7 +91,7 @@ public class RefineryMenu extends OilImpMenu
         this.capacityLabels[4] = new JLabel("50232");
         for (int t = 0; t < this.capacityLabels.length; t++)
         {
-            this.capacityPanel.setFont(LABEL_FONT);
+            this.capacityLabels[t].setFont(LABEL_FONT);
             this.capacityPanel.add(this.capacityLabels[t]);
         }
         
