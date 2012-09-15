@@ -14,30 +14,50 @@ import model.FactoryInformation;
  *
  * @author Paranoide
  */
-public class RefineryMenu extends OilImpMenu
+public class RefineryMenu extends OilImpMenu implements ActionListener
 {
     
-    OilImp game;
+    private OilImp game;
     
-    String currentOilField;
+    private String currentOilField;
     
-    JPanel infoPanel;
-    TitledBorder infoPanelBorder;
-    JPanel ressNamePanel;
-    JLabel[] ressNameLabels;
-    TitledBorder ressNamePanelBorder;
-    JPanel currentRessPanel;
-    JLabel[] currentRessLabels;
-    TitledBorder currentRessPanelBorder;
-    JPanel afterwardsRessPanel;
-    JLabel[] afterwardsRessLabels;
-    TitledBorder afterwardsRessPanelBorder;
-    JPanel capacityPanel;
-    JLabel[] capacityLabels;
-    TitledBorder capacityPanelBorder;
+    private JPanel infoPanel;
+    private TitledBorder infoPanelBorder;
+    private JPanel ressNamePanel;
+    private JLabel[] ressNameLabels;
+    private TitledBorder ressNamePanelBorder;
+    private JPanel currentRessPanel;
+    private JLabel[] currentRessLabels;
+    private TitledBorder currentRessPanelBorder;
+    private JPanel afterwardsRessPanel;
+    private JLabel[] afterwardsRessLabels;
+    private TitledBorder afterwardsRessPanelBorder;
+    private JPanel capacityPanel;
+    private JLabel[] capacityLabels;
+    private TitledBorder capacityPanelBorder;
     
     
-    JPanel actionPanel;
+    
+    private JPanel actionPanel;
+    private TitledBorder actionPanelBorder;
+    
+    private JPanel consumePanel;
+    private TitledBorder consumePanelBorder;
+    private JLabel[] consumeNameLabels;
+    private JLabel[] consumeValueLabels;
+    
+    
+    
+    private JPanel producePanel;
+    private TitledBorder producePanelBorder;
+    
+    private JPanel choosePanel;
+    private JRadioButton[] chooseRBs;
+    private JLabel[] ressLabels;
+    private JTextField[] ressAmount;
+    
+    private JPanel produceButtonPanel;
+    private JButton produceButton;
     
     public RefineryMenu(OilImp game, String startOilField)
     {
@@ -79,14 +99,15 @@ public class RefineryMenu extends OilImpMenu
         }
         
         this.currentRessLabels = new JLabel[5];
-        this.currentRessLabels[0] = new JLabel("100");
-        this.currentRessLabels[1] = new JLabel("53343");
-        this.currentRessLabels[2] = new JLabel("20000");
-        this.currentRessLabels[3] = new JLabel("15000");
-        this.currentRessLabels[4] = new JLabel("50232");
+        this.currentRessLabels[0] = new JLabel(formatBigNumber(100));
+        this.currentRessLabels[1] = new JLabel(formatBigNumber(53343));
+        this.currentRessLabels[2] = new JLabel(formatBigNumber(20000));
+        this.currentRessLabels[3] = new JLabel(formatBigNumber(15000));
+        this.currentRessLabels[4] = new JLabel(formatBigNumber(50232));
         for (int t = 0; t < this.currentRessLabels.length; t++)
         {
-            this.currentRessLabels[t].setFont(LABEL_FONT);
+            this.currentRessLabels[t].setFont(NUMBER_FONT);
+            this.currentRessLabels[t].setHorizontalAlignment(JLabel.RIGHT);
             this.currentRessPanel.add(this.currentRessLabels[t]);
         }
         
@@ -98,7 +119,8 @@ public class RefineryMenu extends OilImpMenu
         this.afterwardsRessLabels[4] = new JLabel("50232");
         for (int t = 0; t < this.afterwardsRessLabels.length; t++)
         {
-            this.afterwardsRessLabels[t].setFont(LABEL_FONT);
+            this.afterwardsRessLabels[t].setFont(NUMBER_FONT);
+            this.afterwardsRessLabels[t].setHorizontalAlignment(JLabel.RIGHT);
             this.afterwardsRessPanel.add(this.afterwardsRessLabels[t]);
         }
         
@@ -110,7 +132,8 @@ public class RefineryMenu extends OilImpMenu
         this.capacityLabels[4] = new JLabel("50232");
         for (int t = 0; t < this.capacityLabels.length; t++)
         {
-            this.capacityLabels[t].setFont(LABEL_FONT);
+            this.capacityLabels[t].setFont(NUMBER_FONT);
+            this.capacityLabels[t].setHorizontalAlignment(JLabel.RIGHT);
             this.capacityPanel.add(this.capacityLabels[t]);
         }
         
@@ -121,13 +144,101 @@ public class RefineryMenu extends OilImpMenu
         
         
         
-        this.actionPanel = new JPanel(new GridLayout(1, 1));
-        this.actionPanel.add(new Button("OK"));
+        this.actionPanel = new JPanel(new GridLayout(1, 2));
+        this.actionPanelBorder = createBorder("Aktion", BORDER_FONT, 0);
+        this.actionPanel.setBorder(this.actionPanelBorder);
         
+        this.consumePanel = new JPanel(new GridLayout(3, 2));
+        this.consumePanelBorder = createBorder("Verbrauch", BORDER_SMALL_FONT, 0);
+        this.consumePanel.setBorder(this.consumePanelBorder);
+        this.actionPanel.add(this.consumePanel);
+        
+        this.producePanel = new JPanel(new BorderLayout());
+        this.producePanelBorder = createBorder("Herstellen", BORDER_SMALL_FONT, 0);
+        this.producePanel.setBorder(this.producePanelBorder);
+        this.actionPanel.add(this.producePanel);
+        
+        this.consumeNameLabels  = new JLabel[3];
+        this.consumeValueLabels = new JLabel[3];
+        
+        this.consumeNameLabels[0] = new JLabel("Rohoel:");
+        this.consumeNameLabels[1] = new JLabel("MAs:");
+        this.consumeNameLabels[2] = new JLabel("Kosten:");
+        
+        
+        this.consumeValueLabels[0] = new JLabel(formatBigNumber(1234));
+        this.consumeValueLabels[1] = new JLabel(formatBigNumber(10));
+        this.consumeValueLabels[2] = new JLabel("$" + formatBigNumber(500));
+        
+        for (int t = 0; t < 3; t++)
+        {
+            this.consumeNameLabels[t].setFont(HEADLINE_FONT);
+            this.consumeNameLabels[t].setHorizontalAlignment(JLabel.LEFT);
+            this.consumePanel.add(this.consumeNameLabels[t]);
+            this.consumeValueLabels[t].setFont(NUMBER_FONT);
+            this.consumeValueLabels[t].setHorizontalAlignment(JLabel.RIGHT);
+            this.consumePanel.add(this.consumeValueLabels[t]);
+        }
+        
+        
+        this.choosePanel = new JPanel(new GridLayout(3, 3));
+        
+        this.ressLabels = new JLabel[3];
+        this.ressLabels[0] = new JLabel("Kerosin");
+        this.ressLabels[1] = new JLabel("Diesel");
+        this.ressLabels[2] = new JLabel("Benzin");
+        
+        this.chooseRBs = new JRadioButton[3];
+        ButtonGroup rbGroup = new ButtonGroup();
+        this.ressAmount = new JTextField[3];
+        
+        for (int t = 0; t < 3; t++)
+        {
+            this.chooseRBs[t] = new JRadioButton();
+            rbGroup.add(this.chooseRBs[t]);
+            this.chooseRBs[t].setHorizontalAlignment(JRadioButton.CENTER);
+            this.chooseRBs[t].addActionListener(this);
+            this.choosePanel.add(this.chooseRBs[t]);
+            
+            this.ressLabels[t].setFont(LABEL_FONT);
+            this.ressLabels[t].setHorizontalAlignment(JLabel.LEFT);
+            this.ressLabels[t].setEnabled(false);
+            this.choosePanel.add(this.ressLabels[t]);
+            
+            this.ressAmount[t] = new JTextField();
+            this.ressAmount[t].setFont(LABEL_FONT);
+            this.ressAmount[t].setEnabled(false);
+            this.choosePanel.add(this.ressAmount[t]);
+        }
+        
+        this.produceButtonPanel = new JPanel(new GridLayout(1, 1));
+        this.produceButton = new JButton("Herstellen");
+        this.produceButton.setFont(BUTTON_FONT);
+        this.produceButtonPanel.add(this.produceButton);
+        
+        this.producePanel.add(this.choosePanel, BorderLayout.CENTER);
+        this.producePanel.add(this.produceButtonPanel, BorderLayout.SOUTH);
         
         
         this.add(this.infoPanel);
         this.add(this.actionPanel);
+        
+        
+    }
+    
+    @Override
+    public void actionPerformed(ActionEvent ae)
+    {
+        for (int t = 0; t < 3; t++)
+        {
+            this.ressLabels[t].setEnabled(false);
+            this.ressAmount[t].setEnabled(false);
+            if (ae.getSource() == this.chooseRBs[t])
+            {
+                this.ressLabels[t].setEnabled(true);
+                this.ressAmount[t].setEnabled(true);
+            }
+        }
     }
     
     
