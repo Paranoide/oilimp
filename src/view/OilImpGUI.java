@@ -44,6 +44,7 @@ public class OilImpGUI
     private FactoryMenu factoryMenu;
     private final String FACTORY_ID = "Factory";
 
+    private RefineryMenu refineryMenu;
     private final String REFINERY_ID = "Refinery";
 
     // Foot messages
@@ -108,7 +109,8 @@ public class OilImpGUI
         this.menuPanel.add(this.factoryMenu, FACTORY_ID);
         this.factoryMenu.defaultAction();
 
-        this.menuPanel.add(new JPanel(), REFINERY_ID);
+        this.refineryMenu = new RefineryMenu(this.game, oilFieldNames[0]);
+        this.menuPanel.add(this.refineryMenu, REFINERY_ID);
         
         // ---------------------------------------------------------------------
 
@@ -144,6 +146,7 @@ public class OilImpGUI
     {
         ItemListener oilFieldListener = new ItemListener()
         {
+            @Override
             public void itemStateChanged(ItemEvent ie)
             {
                 if (ie.getStateChange() == ItemEvent.SELECTED)
@@ -166,6 +169,7 @@ public class OilImpGUI
 
         ItemListener menuListener = new ItemListener()
         {
+            @Override
             public void itemStateChanged(ItemEvent ie)
             {
                 if (ie.getStateChange() == ItemEvent.SELECTED)
@@ -244,7 +248,7 @@ public class OilImpGUI
             Component[] subComps = ((Container)comp).getComponents();
             for (Component c: subComps)
             {
-                this.applyColorToAllComponents((Container)c, color, except);
+                this.applyColorToAllComponents((Component)c, color, except);
             }
         }
     }
