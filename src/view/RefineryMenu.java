@@ -44,7 +44,7 @@ public class RefineryMenu extends OilImpMenu implements ActionListener
     private JPanel consumePanel;
     private TitledBorder consumePanelBorder;
     private JLabel[] consumeNameLabels;
-    private JLabel[] consumeValueLabels;
+    private JTextField[] consumeValueFields;
     
     
     
@@ -55,6 +55,7 @@ public class RefineryMenu extends OilImpMenu implements ActionListener
     private JRadioButton[] chooseRBs;
     private JLabel[] ressLabels;
     private JTextField[] ressAmount;
+    private JButton[] maxButtons;
     
     private JPanel produceButtonPanel;
     private JButton produceButton;
@@ -159,29 +160,30 @@ public class RefineryMenu extends OilImpMenu implements ActionListener
         this.actionPanel.add(this.producePanel);
         
         this.consumeNameLabels  = new JLabel[3];
-        this.consumeValueLabels = new JLabel[3];
+        this.consumeValueFields = new JTextField[3];
         
         this.consumeNameLabels[0] = new JLabel("Rohoel:");
         this.consumeNameLabels[1] = new JLabel("MAs:");
         this.consumeNameLabels[2] = new JLabel("Kosten:");
         
         
-        this.consumeValueLabels[0] = new JLabel(formatBigNumber(1234));
-        this.consumeValueLabels[1] = new JLabel(formatBigNumber(10));
-        this.consumeValueLabels[2] = new JLabel("$" + formatBigNumber(500));
+        this.consumeValueFields[0] = new JTextField(formatBigNumber(1234));
+        this.consumeValueFields[1] = new JTextField(formatBigNumber(10));
+        this.consumeValueFields[2] = new JTextField("$" + formatBigNumber(500));
         
         for (int t = 0; t < 3; t++)
         {
             this.consumeNameLabels[t].setFont(HEADLINE_FONT);
             this.consumeNameLabels[t].setHorizontalAlignment(JLabel.LEFT);
             this.consumePanel.add(this.consumeNameLabels[t]);
-            this.consumeValueLabels[t].setFont(NUMBER_FONT);
-            this.consumeValueLabels[t].setHorizontalAlignment(JLabel.RIGHT);
-            this.consumePanel.add(this.consumeValueLabels[t]);
+            this.consumeValueFields[t].setFont(NUMBER_FONT);
+            this.consumeValueFields[t].setHorizontalAlignment(JLabel.RIGHT);
+            this.consumeValueFields[t].setEnabled(false);
+            this.consumePanel.add(this.consumeValueFields[t]);
         }
         
         
-        this.choosePanel = new JPanel(new GridLayout(3, 3));
+        this.choosePanel = new JPanel(new GridLayout(3, 4));
         
         this.ressLabels = new JLabel[3];
         this.ressLabels[0] = new JLabel("Kerosin");
@@ -191,6 +193,7 @@ public class RefineryMenu extends OilImpMenu implements ActionListener
         this.chooseRBs = new JRadioButton[3];
         ButtonGroup rbGroup = new ButtonGroup();
         this.ressAmount = new JTextField[3];
+        this.maxButtons = new JButton[3];
         
         for (int t = 0; t < 3; t++)
         {
@@ -206,9 +209,15 @@ public class RefineryMenu extends OilImpMenu implements ActionListener
             this.choosePanel.add(this.ressLabels[t]);
             
             this.ressAmount[t] = new JTextField();
-            this.ressAmount[t].setFont(LABEL_FONT);
+            this.ressAmount[t].setFont(NUMBER_FONT);
+            this.ressAmount[t].setHorizontalAlignment(JTextField.RIGHT);
             this.ressAmount[t].setEnabled(false);
             this.choosePanel.add(this.ressAmount[t]);
+            
+            this.maxButtons[t] = new JButton("Max");
+            this.maxButtons[t].setFont(BUTTON_FONT);
+            this.maxButtons[t].setEnabled(false);
+            this.choosePanel.add(this.maxButtons[t]);
         }
         
         this.produceButtonPanel = new JPanel(new GridLayout(1, 1));
@@ -233,10 +242,12 @@ public class RefineryMenu extends OilImpMenu implements ActionListener
         {
             this.ressLabels[t].setEnabled(false);
             this.ressAmount[t].setEnabled(false);
+            this.maxButtons[t].setEnabled(false);
             if (ae.getSource() == this.chooseRBs[t])
             {
                 this.ressLabels[t].setEnabled(true);
                 this.ressAmount[t].setEnabled(true);
+                this.maxButtons[t].setEnabled(true);
             }
         }
     }
