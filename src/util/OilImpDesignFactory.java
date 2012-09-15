@@ -18,6 +18,7 @@ public class OilImpDesignFactory
     public static final Font FONT_COMIC_18_BI = new Font("Comic Sans MS", Font.ITALIC | Font.BOLD, 18);
     public static final Font FONT_CNEW_12 = new Font("Courier New", Font.PLAIN, 12);
     public static final Font FONT_OCR_18 = new Font("OCR A Extended", Font.PLAIN, 18);
+    public static final Font FONT_VERDANA_15 = new Font("Verdana", Font.PLAIN, 15);
 
     public static final Font BORDER_FONT = FONT_CALIBRI_22_B;
     public static final Font BORDER_SMALL_FONT = FONT_ROMAN_14;
@@ -25,6 +26,7 @@ public class OilImpDesignFactory
     public static final Font LOG_FONT = FONT_CNEW_12;
     public static final Font HEADLINE_FONT = FONT_COMIC_18_BI;
     public static final Font NUMBER_FONT = FONT_OCR_18;
+    public static final Font BUTTON_FONT = FONT_VERDANA_15;
 
     public static final Color backgroundColor = new Color(32, 188, 255);
 
