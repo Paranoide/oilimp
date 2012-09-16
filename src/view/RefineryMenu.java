@@ -14,7 +14,8 @@ import model.FactoryInformation;
  *
  * @author Paranoide
  */
-public class RefineryMenu extends OilImpMenu implements ActionListener
+public class RefineryMenu extends OilImpMenu implements ActionListener,
+                                                        MouseListener
 {
     
     private OilImp game;
@@ -183,14 +184,20 @@ public class RefineryMenu extends OilImpMenu implements ActionListener
         }
         
         
-        this.choosePanel = new JPanel(new GridLayout(3, 4));
+        this.choosePanel = new JPanel(new BorderLayout());
         
         this.ressLabels = new JLabel[3];
         this.ressLabels[0] = new JLabel("Kerosin");
         this.ressLabels[1] = new JLabel("Diesel");
         this.ressLabels[2] = new JLabel("Benzin");
         
+        JPanel rbPanel = new JPanel(new GridLayout(3, 1));
+        JPanel labelAndFieldPanel = new JPanel(new GridLayout(3, 3));
+        this.choosePanel.add(rbPanel, BorderLayout.WEST);
+        this.choosePanel.add(labelAndFieldPanel, BorderLayout.CENTER);
+        
         this.chooseRBs = new JRadioButton[3];
+        
         ButtonGroup rbGroup = new ButtonGroup();
         this.ressAmount = new JTextField[3];
         this.maxButtons = new JButton[3];
@@ -201,23 +208,32 @@ public class RefineryMenu extends OilImpMenu implements ActionListener
             rbGroup.add(this.chooseRBs[t]);
             this.chooseRBs[t].setHorizontalAlignment(JRadioButton.CENTER);
             this.chooseRBs[t].addActionListener(this);
-            this.choosePanel.add(this.chooseRBs[t]);
+            rbPanel.add(this.chooseRBs[t]);
             
             this.ressLabels[t].setFont(LABEL_FONT);
             this.ressLabels[t].setHorizontalAlignment(JLabel.LEFT);
             this.ressLabels[t].setEnabled(false);
-            this.choosePanel.add(this.ressLabels[t]);
+            this.ressLabels[t].addMouseListener(this);
+            labelAndFieldPanel.add(this.ressLabels[t]);
             
             this.ressAmount[t] = new JTextField();
             this.ressAmount[t].setFont(NUMBER_FONT);
             this.ressAmount[t].setHorizontalAlignment(JTextField.RIGHT);
             this.ressAmount[t].setEnabled(false);
-            this.choosePanel.add(this.ressAmount[t]);
+            this.ressAmount[t].addMouseListener(this);
+            this.ressAmount[t].setBorder(BorderFactory.createEtchedBorder());
+            JPanel tmpRessAmoutPanel = new JPanel(new GridLayout(1, 1));
+            tmpRessAmoutPanel.setBorder(BorderFactory.createEmptyBorder(8, 5, 8, 5));
+            tmpRessAmoutPanel.add(this.ressAmount[t]);
+            labelAndFieldPanel.add(tmpRessAmoutPanel);
             
             this.maxButtons[t] = new JButton("Max");
             this.maxButtons[t].setFont(BUTTON_FONT);
             this.maxButtons[t].setEnabled(false);
-            this.choosePanel.add(this.maxButtons[t]);
+            JPanel tmpMaxButtonPanel = new JPanel(new GridLayout(1, 1));
+            tmpMaxButtonPanel.setBorder(BorderFactory.createEmptyBorder(8, 5, 8, 5));
+            tmpMaxButtonPanel.add(this.maxButtons[t]);
+            labelAndFieldPanel.add(tmpMaxButtonPanel);
         }
         
         this.produceButtonPanel = new JPanel(new GridLayout(1, 1));
@@ -248,6 +264,9 @@ public class RefineryMenu extends OilImpMenu implements ActionListener
                 this.ressLabels[t].setEnabled(true);
                 this.ressAmount[t].setEnabled(true);
                 this.maxButtons[t].setEnabled(true);
+                
+                this.ressAmount[t].requestFocus();
+                this.ressAmount[t].selectAll();
             }
         }
     }
@@ -276,6 +295,53 @@ public class RefineryMenu extends OilImpMenu implements ActionListener
     public void setCurrentOilField(String oilField)
     {
         this.currentOilField = oilField;
+    }
+
+    @Override
+    public void mouseClicked(MouseEvent e)
+    {
+        
+    }
+
+    @Override
+    public void mousePressed(MouseEvent e)
+    {
+        for (int t = 0; t < 3; t++)
+        {
+            this.ressLabels[t].setEnabled(false);
+            this.ressAmount[t].setEnabled(false);
+            this.maxButtons[t].setEnabled(false);
+            this.chooseRBs[t].setSelected(false);
+            if (e.getSource() == this.ressLabels[t] ||
+                e.getSource() == this.ressAmount[t])
+            {
+                this.ressLabels[t].setEnabled(true);
+                this.ressAmount[t].setEnabled(true);
+                this.maxButtons[t].setEnabled(true);
+                this.chooseRBs[t].setSelected(true);
+                
+                this.ressAmount[t].requestFocus();
+                this.ressAmount[t].selectAll();
+            }
+        }
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent e)
+    {
+        
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent e)
+    {
+        
+    }
+
+    @Override
+    public void mouseExited(MouseEvent e)
+    {
+        
     }
     
 }
