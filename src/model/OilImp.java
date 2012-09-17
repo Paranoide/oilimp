@@ -36,6 +36,24 @@ import view.LoginForm;
 
 public class OilImp
 {
+    public static enum Ressource
+    {
+        KEROSIN ("Kerosin"),
+        DIESEL ("Diesel"),
+        BENZIN ("Benzin");
+        
+        private String name;
+        
+        Ressource(String name)
+        {
+            this.name = name;
+        }
+        
+        public String getName()
+        {
+            return this.name;
+        }
+    }
 
     private HttpURLConnection conn = null;
     
@@ -592,6 +610,73 @@ public class OilImp
             }
         }
     }
+    
+    public synchronized void produceInRefinery(Ressource ress,
+                                               int amount, 
+                                               int workerCount)
+    {
+        String ausbeuteLabel = "Ausbeute: " + ress.getName();
+        System.out.println(ausbeuteLabel);
+        int ressID = 0;
+        
+        switch (ress)
+        {
+            case KEROSIN:
+                ressID = 1;
+                break;
+            case DIESEL:
+                ressID = 2;
+                break;
+            case BENZIN:
+                ressID = 3;
+                break;
+        }
+        
+        boolean expired = true;
+
+
+        String doc;
+
+        while (expired)
+        {
+            InputStream is = this.httpPOST("http://s1.oilimperium.de/index.php",
+                                      "m=0xSA07",
+                                      
+//                                      "hidden1=100",// + amount,
+                                      "hidden2=" + ressID,
+//                                      "R1=V1",
+                                      "T1=",
+//                                      "T10=100",
+//                                      "T11=100",
+//                                      "T12=Ausbeute:+Kerosin",
+//                                      "T13=75",
+//                                      "T2=49.661+bbl.",
+//                                      "T3=100+bbl.",
+                                      "T4=" + workerCount,
+                                      "T5=" + amount,
+//                                      "T6=110+$",
+//                                      "T8=86",
+//                                      "T9=0+bbl.",
+//                                      "x=61",
+//                                      "y=14",
+                                      "sid=" + this.sessid);
+
+            doc = this.responseToString(is);
+            
+            System.out.println(doc);
+
+            if (this.sessidExpired(doc))
+            {
+                this.login();
+            }
+            else
+            {
+                expired = false;
+            }
+        }
+        
+    }
+    
 
     public synchronized boolean changeOilField(String oilFieldName)
     {
@@ -775,9 +860,9 @@ public class OilImp
     
     public static void main(String[] args)
     {
-        OilImp oi = new OilImp();
-
-        oi.run();
+        
+        OilImp o = new OilImp();
+        o.produceInRefinery(Ressource.DIESEL, (int)(140/0.6), 27);
         
     }
 }
