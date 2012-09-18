@@ -611,6 +611,179 @@ public class OilImp
         }
     }
     
+    public RefineryInformation getRefinery()
+    {
+        
+        Pattern rohoelPattern = Pattern.compile("tankinhalt=(.*?);");
+        Pattern kerosinPattern = Pattern.compile("aktuell_tank_kerosin=(.*?);");
+        Pattern dieselPattern = Pattern.compile("aktuell_tank_diesel=(.*?);");
+        Pattern benzinPattern = Pattern.compile("aktuell_tank_benzin=(.*?);");
+        
+        Pattern maxKPattern = Pattern.compile("max_tank_kerosin=(.*?);");
+        Pattern maxDPattern = Pattern.compile("max_tank_diesel=(.*?);");
+        Pattern maxBPattern = Pattern.compile("max_tank_benzin=(.*?);");
+        
+        Pattern workersPattern = Pattern.compile("arbeiter_ges=(.*?);");
+        Pattern maxWPattern = Pattern.compile("arbeiter_frei=(.*?);");
+        
+        int rohoel = -1;
+        int kerosin = -1;
+        int diesel = -1;
+        int benzin = -1;
+        int workers = -1;
+        
+        int maxK = -1;
+        int maxD = -1;
+        int maxB = -1;
+        int maxW = -1;
+        
+        boolean expired = true;
+        
+        String doc = "";
+
+        while (expired)
+        {
+            String m = "0xSA07";
+
+            InputStream is = this.httpGET("http://s1.oilimperium.de/index.php",
+                                      "sid=" + this.sessid,
+                                      "m=" + m,
+                                      "jnk=" + System.currentTimeMillis());
+
+            doc = this.responseToString(is);
+
+            if (this.sessidExpired(doc))
+            {
+                this.login();
+            }
+            else
+            {
+                expired = false;
+            }
+        }
+        
+        Matcher m = rohoelPattern.matcher(doc);
+        if (m.find())
+        {
+            try
+            {
+                rohoel = new Integer(m.group(1));
+            }
+            catch (NumberFormatException nfe)
+            {
+                System.err.println("ERROR: Couldn't read Rohoel in Refinery");
+            }
+        }
+        
+        m = kerosinPattern.matcher(doc);
+        if (m.find())
+        {
+            try
+            {
+                kerosin = new Integer(m.group(1));
+            }
+            catch (NumberFormatException nfe)
+            {
+                System.err.println("ERROR: Couldn't read Kerosin in Refinery");
+            }
+        }
+        
+        m = dieselPattern.matcher(doc);
+        if (m.find())
+        {
+            try
+            {
+                diesel = new Integer(m.group(1));
+            }
+            catch (NumberFormatException nfe)
+            {
+                System.err.println("ERROR: Couldn't read Diesel in Refinery");
+            }
+        }
+        
+        m = benzinPattern.matcher(doc);
+        if (m.find())
+        {
+            try
+            {
+                benzin = new Integer(m.group(1));
+            }
+            catch (NumberFormatException nfe)
+            {
+                System.err.println("ERROR: Couldn't read Benzin in Refinery");
+            }
+        }
+        
+        m = maxKPattern.matcher(doc);
+        if (m.find())
+        {
+            try
+            {
+                maxK = new Integer(m.group(1));
+            }
+            catch (NumberFormatException nfe)
+            {
+                System.err.println("ERROR: Couldn't read MaxKerosin in Refinery");
+            }
+        }
+        
+        m = maxDPattern.matcher(doc);
+        if (m.find())
+        {
+            try
+            {
+                maxD = new Integer(m.group(1));
+            }
+            catch (NumberFormatException nfe)
+            {
+                System.err.println("ERROR: Couldn't read MaxKerosin in Refinery");
+            }
+        }
+        
+        m = maxBPattern.matcher(doc);
+        if (m.find())
+        {
+            try
+            {
+                maxB = new Integer(m.group(1));
+            }
+            catch (NumberFormatException nfe)
+            {
+                System.err.println("ERROR: Couldn't read MaxKerosin in Refinery");
+            }
+        }
+        
+        m = workersPattern.matcher(doc);
+        if (m.find())
+        {
+            try
+            {
+                workers = new Integer(m.group(1));
+            }
+            catch (NumberFormatException nfe)
+            {
+                System.err.println("ERROR: Couldn't read MaxKerosin in Refinery");
+            }
+        }
+        
+        m = maxWPattern.matcher(doc);
+        if (m.find())
+        {
+            try
+            {
+                maxW = new Integer(m.group(1));
+            }
+            catch (NumberFormatException nfe)
+            {
+                System.err.println("ERROR: Couldn't read MaxKerosin in Refinery");
+            }
+        }
+        
+        RefineryInformation ri = new RefineryInformation(rohoel, kerosin, diesel, benzin, workers,
+                                                                 maxK,    maxD,   maxB,   maxW);
+        return ri;
+    }
+    
     public synchronized void produceInRefinery(Ressource ress,
                                                int amount, 
                                                int workerCount)
@@ -862,7 +1035,9 @@ public class OilImp
     {
         
         OilImp o = new OilImp();
-        o.produceInRefinery(Ressource.DIESEL, (int)(140/0.6), 27);
+//        o.produceInRefinery(Ressource.DIESEL, (int)(140/0.6), 27);
+        RefineryInformation ri = o.getRefinery();
+        System.err.println(ri.toString());
         
     }
 }
