@@ -8,7 +8,7 @@ import javax.swing.*;
 import static util.OilImpDesignFactory.*;
 
 import model.OilImp;
-import model.FactoryInformation;
+import model.FactorySettings;
 
 /**
  *

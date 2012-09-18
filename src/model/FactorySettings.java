@@ -7,14 +7,14 @@ import java.util.LinkedList;
  *
  * @author Paranoide
  */
-public class FactoryInformation
+public class FactorySettings
 {
 
     private List<String> oilFields;
     private List<String[]> status;
     private List<Boolean[]> auto;
 
-    public FactoryInformation()
+    public FactorySettings()
     {
         this.oilFields = new LinkedList<>();
         this.status = new LinkedList<>();

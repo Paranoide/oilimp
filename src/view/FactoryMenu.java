@@ -8,7 +8,7 @@ import javax.swing.*;
 import static util.OilImpDesignFactory.*;
 
 import model.OilImp;
-import model.FactoryInformation;
+import model.FactorySettings;
 /**
  *
  * @author Paranoide
@@ -47,7 +47,7 @@ public class FactoryMenu extends OilImpMenu
     private Thread autoThread;
     private long refreshRate = 6*60000 + 10000;
     private boolean threadIsRunning = false;
-    private final FactoryInformation factoryInfo;
+    private final FactorySettings factoryInfo;
 
     public FactoryMenu(OilImp game, String startOilField)
     {
@@ -155,7 +155,7 @@ public class FactoryMenu extends OilImpMenu
 
 
 
-        this.factoryInfo = new FactoryInformation();
+        this.factoryInfo = new FactorySettings();
         this.autoThread = new Thread(new AutoThread());
         this.currOilField = startOilField;
 
