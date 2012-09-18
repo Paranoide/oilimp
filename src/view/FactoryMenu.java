@@ -43,6 +43,8 @@ public class FactoryMenu extends OilImpMenu
     private Border miscButtonsPanelBorder;
     private JButton[] miscButtons;
 
+    private JTextField refreshRateField;
+    
     private String currOilField = "";
     private Thread autoThread;
     private long refreshRate = 6*60000 + 10000;
@@ -121,21 +123,29 @@ public class FactoryMenu extends OilImpMenu
 
 
         // CheckBoxPanel
-        this.checkBoxPanel = new JPanel(new GridLayout(9 + 1, 3));
+        this.checkBoxPanel = new JPanel(new GridLayout(9 + 1, 1));
         this.checkBoxPanelBorder = createBorder("Auto?", FONT_ROMAN_14, 0);
         this.checkBoxPanel.setBorder(this.checkBoxPanelBorder);
-//            this.checkBoxPanel.setPreferredSize(new Dimension(70, 500));
         this.autoCheckBoxes = new JCheckBox[9];
-
-        this.checkBoxPanel.add(Box.createHorizontalBox());
-        this.checkBoxPanel.add(Box.createHorizontalBox());
-        this.checkBoxPanel.add(Box.createHorizontalBox());
+        
+        JPanel tmpTFPanel = new JPanel(new BorderLayout());
+        this.refreshRateField = new JTextField("6");
+        this.refreshRateField.setHorizontalAlignment(JTextField.RIGHT);
+        this.refreshRateField.setFont(LABEL_FONT);
+        tmpTFPanel.add(this.refreshRateField, BorderLayout.CENTER);
+        JLabel minuteLabel = new JLabel("m");
+        minuteLabel.setFont(LABEL_FONT);
+        tmpTFPanel.add(minuteLabel, BorderLayout.EAST);
+        this.checkBoxPanel.add(tmpTFPanel);
         for (int t = 0; t < 9; t++)
         {
-            this.checkBoxPanel.add(Box.createHorizontalBox());
+            JPanel tmpCBPanel = new JPanel(new GridLayout(1, 3));
+            tmpCBPanel.add(Box.createHorizontalBox());
             this.autoCheckBoxes[t] = new JCheckBox();
-            this.checkBoxPanel.add(this.autoCheckBoxes[t]);
-            this.checkBoxPanel.add(Box.createHorizontalBox());
+            tmpCBPanel.add(this.autoCheckBoxes[t]);
+            tmpCBPanel.add(Box.createHorizontalBox());
+            
+            this.checkBoxPanel.add(tmpCBPanel);
         }
 
         this.add(this.checkBoxPanel, BorderLayout.EAST);
@@ -149,6 +159,10 @@ public class FactoryMenu extends OilImpMenu
         for (int t = 0; t < 1; t++)
         {
             this.miscButtons[t] = new JButton("Start thread");
+            this.miscButtons[t].setBackground(Color.GREEN);
+            this.miscButtons[t].setForeground(Color.BLACK);
+            this.miscButtons[t].setContentAreaFilled(false);
+            this.miscButtons[t].setOpaque(true);
             this.miscButtonsPanel.add(this.miscButtons[t]);
         }
         this.add(this.miscButtonsPanel, BorderLayout.SOUTH);
@@ -167,47 +181,70 @@ public class FactoryMenu extends OilImpMenu
     {
         ActionListener factoryListener = new ActionListener()
         {
-
+            @Override
             public void actionPerformed(ActionEvent ae)
             {
-
-                for (int t = 0; t < produceButtons.length; t++)
+                
+                if (ae.getSource() == refreshRateField)
                 {
-                    final int t2 = t;
-                    if (ae.getSource() == produceButtons[t])
+                    try
                     {
-                        new Thread(new Runnable()
+                        int newRate = new Integer(refreshRateField.getText());
+                        refreshRate = newRate * 60 * 1000;
+                    }
+                    catch (NumberFormatException nfe)
+                    {
+                        String msg = "Please enter an integer";
+                        String title = "Wrong format";
+                        JOptionPane.showMessageDialog(null,
+                                                      msg,
+                                                      title,
+                                                      JOptionPane.ERROR_MESSAGE);
+                        refreshRateField.requestFocusInWindow();
+                        refreshRateField.selectAll();
+                    }
+                }
+                else
+                {
+                    for (int t = 0; t < produceButtons.length; t++)
+                    {
+                        final int t2 = t;
+                        if (ae.getSource() == produceButtons[t])
                         {
-                            public void run()
+                            new Thread(new Runnable()
                             {
-                                produce(t2, currOilField);
-                            }
-                        }).start();
+                                public void run()
+                                {
+                                    produce(t2, currOilField);
+                                }
+                            }).start();
+                        }
                     }
-                }
 
-                for (int t = 0; t < autoCheckBoxes.length; t++)
-                {
-                    JCheckBox cb = autoCheckBoxes[t];
-                    if (cb == ae.getSource())
+                    for (int t = 0; t < autoCheckBoxes.length; t++)
                     {
-                        factoryInfo.setAuto(currOilField, t, cb.isSelected());
-                    }
-                }
-
-                for (int t = 0; t < miscButtons.length; t++)
-                {
-                    if (miscButtons[t] == ae.getSource())
-                    {
-                        if (t == 0)
+                        JCheckBox cb = autoCheckBoxes[t];
+                        if (cb == ae.getSource())
                         {
-                            setAutoThreadWorking(!threadIsRunning);
+                            factoryInfo.setAuto(currOilField, t, cb.isSelected());
+                        }
+                    }
+
+                    for (int t = 0; t < miscButtons.length; t++)
+                    {
+                        if (miscButtons[t] == ae.getSource())
+                        {
+                            if (t == 0)
+                            {
+                                setAutoThreadWorking(!threadIsRunning);
+                            }
                         }
                     }
                 }
             }
         };
 
+        refreshRateField.addActionListener(factoryListener);
         for (int t = 0; t < produceButtons.length; t++)
         {
             produceButtons[t].addActionListener(factoryListener);
@@ -315,12 +352,20 @@ public class FactoryMenu extends OilImpMenu
             this.autoThread.start();
             this.threadIsRunning = true;
             System.out.println("Starting thread");
+            this.miscButtons[0].setText("Stop thread");
+            this.miscButtons[0].setBackground(Color.RED);
+            this.miscButtons[0].setForeground(Color.WHITE);
+            this.refreshRateField.setEnabled(false);
         }
         else if (this.autoThread.isAlive() && !working)
         {
             this.autoThread.interrupt();
             this.threadIsRunning = false;
             System.out.println("Ending thread");
+            this.miscButtons[0].setText("Start thread");
+            this.miscButtons[0].setBackground(Color.GREEN);
+            this.miscButtons[0].setForeground(Color.BLACK);
+            this.refreshRateField.setEnabled(true);
         }
         else
         {
@@ -346,6 +391,7 @@ public class FactoryMenu extends OilImpMenu
         }).start();
     }
 
+    @Override
     public void reset()
     {
         for (int t = 0; t < 9; t++)
@@ -355,6 +401,7 @@ public class FactoryMenu extends OilImpMenu
         }
     }
 
+    @Override
     public void reset(String oilField)
     {
         
@@ -362,6 +409,7 @@ public class FactoryMenu extends OilImpMenu
 
     private class AutoThread implements Runnable
     {
+        @Override
         public void run()
         {
 //            refreshRate = 2000;

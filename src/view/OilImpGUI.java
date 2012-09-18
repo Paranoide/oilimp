@@ -133,7 +133,8 @@ public class OilImpGUI
                                        backgroundColor,
                                        JButton.class,
                                        JComboBox.class,
-                                       JTextArea.class);
+                                       JTextArea.class,
+                                       JTextField.class);
 
         this.mainFrame.setVisible(true);
 
