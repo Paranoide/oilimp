@@ -176,6 +176,16 @@ public class OilImpGUI
                 {
                     String s = (String)ie.getItem();
                     menuPanelCards.show(menuPanel, s);
+                    
+                    new Thread(new Runnable()
+                    {
+                        @Override
+                        public void run() 
+                        {
+                            OilImpMenu oim = (OilImpMenu)menuPanel.getComponents()[1];
+                            oim.defaultAction();
+                        }
+                    }).start();
                 }
             }
         };
@@ -195,7 +205,7 @@ public class OilImpGUI
             private byte lastByte = 0;
 
             @Override
-            public void write(int b) throws IOException
+            public synchronized void write(int b) throws IOException
             {
                 this.console.write(b);
 

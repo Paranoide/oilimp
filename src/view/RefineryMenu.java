@@ -9,6 +9,7 @@ import static util.OilImpDesignFactory.*;
 
 import model.OilImp;
 import model.FactorySettings;
+import model.RefineryInformation;
 
 /**
  *
@@ -248,6 +249,7 @@ public class RefineryMenu extends OilImpMenu implements ActionListener,
         this.add(this.infoPanel);
         this.add(this.actionPanel);
         
+        this.reset();
         
     }
     
@@ -271,12 +273,42 @@ public class RefineryMenu extends OilImpMenu implements ActionListener,
         }
     }
     
+    public void getRefineryInformation()
+    {
+        RefineryInformation ri = this.game.getRefinery();
+        this.currentRessLabels[0].setText(ri.getCurrentWorkers() + "");
+        this.currentRessLabels[1].setText(ri.getCurrentRohoel() + "");
+        this.currentRessLabels[2].setText(ri.getCurrentKerosin() + "");
+        this.currentRessLabels[3].setText(ri.getCurrentDiesel() + "");
+        this.currentRessLabels[4].setText(ri.getCurrentBenzin() + "");
+        
+        this.capacityLabels[0].setText(ri.getMaxWorkers() + "");
+        this.capacityLabels[1].setText(ri.getMaxRohoel() + "");
+        this.capacityLabels[2].setText(ri.getMaxKerosin() + "");
+        this.capacityLabels[3].setText(ri.getMaxDiesel() + "");
+        this.capacityLabels[4].setText(ri.getMaxBenzin() + "");
+        
+    }
+    
     
 
     @Override
     public void reset()
     {
+        for (int t = 0; t < this.currentRessLabels.length; t++)
+        {
+            this.currentRessLabels[t].setText("---");
+        }
         
+        for (int t = 0; t < this.afterwardsRessLabels.length; t++)
+        {
+            this.afterwardsRessLabels[t].setText("---");
+        }
+        
+        for (int t = 0; t < this.capacityLabels.length; t++)
+        {
+            this.capacityLabels[t].setText("---");
+        }
     }
 
     @Override
@@ -288,7 +320,7 @@ public class RefineryMenu extends OilImpMenu implements ActionListener,
     @Override
     public void defaultAction()
     {
-        throw new UnsupportedOperationException("Not supported yet.");
+        this.getRefineryInformation();
     }
 
     @Override

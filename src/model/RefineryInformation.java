@@ -133,4 +133,9 @@ public class RefineryInformation
     {
         this.maxWorkers = maxWorkers;
     }
+    
+    public int getMaxRohoel()
+    {
+        return 250000;
+    }
 }
