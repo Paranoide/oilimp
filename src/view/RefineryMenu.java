@@ -4,6 +4,8 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.border.*;
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 import static util.OilImpDesignFactory.*;
 
@@ -16,7 +18,8 @@ import model.RefineryInformation;
  * @author Paranoide
  */
 public class RefineryMenu extends OilImpMenu implements ActionListener,
-                                                        MouseListener
+                                                        MouseListener,
+                                                        DocumentListener
 {
     
     private OilImp game;
@@ -61,6 +64,14 @@ public class RefineryMenu extends OilImpMenu implements ActionListener,
     
     private JPanel produceButtonPanel;
     private JButton produceButton;
+    
+    
+    private double kerosinFactor = 0.75;
+    private double dieselFactor  = 0.60;
+    private double benzinFactor  = 0.50;
+    private double[] ressFactors = {0.75, 0.60, 0.50};
+    private int[] ressMAs        = {40, 27, 37};
+    
     
     public RefineryMenu(OilImp game, String startOilField)
     {
@@ -222,6 +233,7 @@ public class RefineryMenu extends OilImpMenu implements ActionListener,
             this.ressAmount[t].setHorizontalAlignment(JTextField.RIGHT);
             this.ressAmount[t].setEnabled(false);
             this.ressAmount[t].addMouseListener(this);
+            this.ressAmount[t].getDocument().addDocumentListener(this);
             this.ressAmount[t].setBorder(BorderFactory.createEtchedBorder());
             JPanel tmpRessAmoutPanel = new JPanel(new GridLayout(1, 1));
             tmpRessAmoutPanel.setBorder(BorderFactory.createEmptyBorder(8, 5, 8, 5));
@@ -231,6 +243,7 @@ public class RefineryMenu extends OilImpMenu implements ActionListener,
             this.maxButtons[t] = new JButton("Max");
             this.maxButtons[t].setFont(BUTTON_FONT);
             this.maxButtons[t].setEnabled(false);
+            this.maxButtons[t].addActionListener(this);
             JPanel tmpMaxButtonPanel = new JPanel(new GridLayout(1, 1));
             tmpMaxButtonPanel.setBorder(BorderFactory.createEmptyBorder(8, 5, 8, 5));
             tmpMaxButtonPanel.add(this.maxButtons[t]);
@@ -240,6 +253,7 @@ public class RefineryMenu extends OilImpMenu implements ActionListener,
         this.produceButtonPanel = new JPanel(new GridLayout(1, 1));
         this.produceButton = new JButton("Herstellen");
         this.produceButton.setFont(BUTTON_FONT);
+        this.produceButton.addActionListener(this);
         this.produceButtonPanel.add(this.produceButton);
         
         this.producePanel.add(this.choosePanel, BorderLayout.CENTER);
@@ -253,25 +267,7 @@ public class RefineryMenu extends OilImpMenu implements ActionListener,
         
     }
     
-    @Override
-    public void actionPerformed(ActionEvent ae)
-    {
-        for (int t = 0; t < 3; t++)
-        {
-            this.ressLabels[t].setEnabled(false);
-            this.ressAmount[t].setEnabled(false);
-            this.maxButtons[t].setEnabled(false);
-            if (ae.getSource() == this.chooseRBs[t])
-            {
-                this.ressLabels[t].setEnabled(true);
-                this.ressAmount[t].setEnabled(true);
-                this.maxButtons[t].setEnabled(true);
-                
-                this.ressAmount[t].requestFocus();
-                this.ressAmount[t].selectAll();
-            }
-        }
-    }
+    
     
     public void getRefineryInformation()
     {
@@ -281,6 +277,12 @@ public class RefineryMenu extends OilImpMenu implements ActionListener,
         this.currentRessLabels[2].setText(ri.getCurrentKerosin() + "");
         this.currentRessLabels[3].setText(ri.getCurrentDiesel() + "");
         this.currentRessLabels[4].setText(ri.getCurrentBenzin() + "");
+        
+        this.afterwardsRessLabels[0].setText(ri.getCurrentWorkers() + "");
+        this.afterwardsRessLabels[1].setText(ri.getCurrentRohoel() + "");
+        this.afterwardsRessLabels[2].setText(ri.getCurrentKerosin() + "");
+        this.afterwardsRessLabels[3].setText(ri.getCurrentDiesel() + "");
+        this.afterwardsRessLabels[4].setText(ri.getCurrentBenzin() + "");
         
         this.capacityLabels[0].setText(ri.getMaxWorkers() + "");
         this.capacityLabels[1].setText(ri.getMaxRohoel() + "");
@@ -328,7 +330,66 @@ public class RefineryMenu extends OilImpMenu implements ActionListener,
     {
         this.currentOilField = oilField;
     }
-
+    
+    // Listener methods
+    
+    @Override
+    public void actionPerformed(ActionEvent ae)
+    {
+        for (int t = 0; t < 3; t++)
+        {
+            if (ae.getSource() == this.chooseRBs[t])
+            {
+                for (int n = 0; n < 3; n++)
+                {
+                    this.ressLabels[n].setEnabled(false);
+                    this.ressAmount[n].setEnabled(false);
+                    this.maxButtons[n].setEnabled(false);
+                }
+                
+                this.ressLabels[t].setEnabled(true);
+                this.ressAmount[t].setEnabled(true);
+                this.maxButtons[t].setEnabled(true);
+                
+                this.ressAmount[t].requestFocus();
+                this.ressAmount[t].selectAll();
+                
+                break;
+            }
+        }
+        
+        for (int t = 0; t < 3; t++)
+        {
+            if (ae.getSource() == this.maxButtons[t])
+            {
+                this.setMaximum(t);
+            }
+        }
+        
+        if (ae.getSource() == this.produceButton)
+        {
+            OilImp.Ressource[] resses = {OilImp.Ressource.KEROSIN,
+                                         OilImp.Ressource.DIESEL,
+                                         OilImp.Ressource.BENZIN};
+            OilImp.Ressource ress = null;
+            int rohoelAmount = 0;
+            int ressAmount = 0;
+            int workers = 0;
+            for (int t = 0; t < 3; t++)
+            {
+                if (this.ressAmount[t].isEnabled())
+                {
+                    ress = resses[t];
+                    rohoelAmount = new Integer(this.ressAmount[t].getText());
+                    ressAmount = (int)(rohoelAmount / this.ressFactors[t]);
+                    workers = new Integer(this.consumeValueFields[1].getText());
+                }
+            }
+            
+            this.game.produceInRefinery(ress, ressAmount, workers);
+        }
+    }
+    
     @Override
     public void mouseClicked(MouseEvent e)
     {
@@ -375,5 +436,75 @@ public class RefineryMenu extends OilImpMenu implements ActionListener,
     {
         
     }
+
+    @Override
+    public void insertUpdate(DocumentEvent e)
+    {
+        this.changedUpdate(e);
+    }
+
+    @Override
+    public void removeUpdate(DocumentEvent e)
+    {
+        this.changedUpdate(e);
+    }
+
+    @Override
+    public void changedUpdate(DocumentEvent e)
+    {
+//         int currW = new Integer(this.currentRessLabels[0].getText());
+//         int currR = new Integer(this.currentRessLabels[1].getText());
+//         int currK = new Integer(this.currentRessLabels[2].getText());
+//         int currD = new Integer(this.currentRessLabels[3].getText());
+//         int currB = new Integer(this.currentRessLabels[4].getText());
+
+        int nr = 0;
+        int newAmount = 0;
+        for (int t = 0; t < this.ressAmount.length; t++)
+        {
+            if (e.getDocument() == this.ressAmount[t].getDocument())
+            {
+                nr = t;
+                newAmount = new Integer("0" + this.ressAmount[t].getText());
+            }
+            else
+            {
+                this.ressAmount[t].setText("");
+            }
+        }
+
+        for (int t = 0; t < this.ressAmount.length; t++)
+        {
+            this.afterwardsRessLabels[t + 2].setText(this.currentRessLabels[t + 2].getText());
+        }
+
+        int currRess = new Integer("0" + this.currentRessLabels[nr + 2].getText());
+        String newAmountStr = (currRess + newAmount) + "";
+        this.afterwardsRessLabels[nr + 2].setText(newAmountStr);
+        
+        this.consumeValueFields[1].setText(this.ressMAs[nr] + "");
+        int rohoelNeeded = (int)(newAmount / this.ressFactors[nr]);
+        this.consumeValueFields[0].setText(rohoelNeeded + "");
+    }
+
     
+    
+    // Private methods
+    
+    private void setMaximum(int ress)
+    {
+                
+        int currRess = new Integer(this.currentRessLabels[ress + 2].getText());
+        int currRessCap = new Integer(this.capacityLabels[ress + 2].getText());
+        
+        int maxRessByCapacity = currRessCap - currRess;
+        
+        int currRohoel = new Integer(this.currentRessLabels[1].getText());
+        int maxRessByRohoel = (int)(currRohoel * this.ressFactors[ress]);
+        
+        
+        int maximum = Math.min(maxRessByCapacity, maxRessByRohoel);
+        
+        this.ressAmount[ress].setText(maximum + "");
+    }
 }

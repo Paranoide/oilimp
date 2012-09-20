@@ -297,6 +297,7 @@ public class FactoryMenu extends OilImpMenu
         game.produceInFactory(t);
     }
 
+    @Override
     public void setCurrentOilField(String oilField)
     {
         synchronized (factoryInfo)
