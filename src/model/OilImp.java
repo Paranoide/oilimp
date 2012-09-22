@@ -623,8 +623,8 @@ public class OilImp
         Pattern maxDPattern = Pattern.compile("max_tank_diesel=(.*?);");
         Pattern maxBPattern = Pattern.compile("max_tank_benzin=(.*?);");
         
-        Pattern workersPattern = Pattern.compile("arbeiter_ges=(.*?);");
-        Pattern maxWPattern = Pattern.compile("arbeiter_frei=(.*?);");
+        Pattern workersPattern = Pattern.compile("arbeiter_frei=(.*?);");
+        Pattern maxWPattern = Pattern.compile("arbeiter_ges=(.*?);");
         
         int rohoel = -1;
         int kerosin = -1;
@@ -736,7 +736,7 @@ public class OilImp
             }
             catch (NumberFormatException nfe)
             {
-                System.err.println("ERROR: Couldn't read MaxKerosin in Refinery");
+                System.err.println("ERROR: Couldn't read MaxDiesel in Refinery");
             }
         }
         
@@ -749,7 +749,7 @@ public class OilImp
             }
             catch (NumberFormatException nfe)
             {
-                System.err.println("ERROR: Couldn't read MaxKerosin in Refinery");
+                System.err.println("ERROR: Couldn't read MaxBenzin in Refinery");
             }
         }
         
@@ -762,7 +762,7 @@ public class OilImp
             }
             catch (NumberFormatException nfe)
             {
-                System.err.println("ERROR: Couldn't read MaxKerosin in Refinery");
+                System.err.println("ERROR: Couldn't read Workers in Refinery");
             }
         }
         
@@ -775,7 +775,7 @@ public class OilImp
             }
             catch (NumberFormatException nfe)
             {
-                System.err.println("ERROR: Couldn't read MaxKerosin in Refinery");
+                System.err.println("ERROR: Couldn't read MaxWorkers in Refinery");
             }
         }
         
