@@ -155,10 +155,11 @@ public class OilImpGUI
                     final String oilField = (String)ie.getItem();
                     new Thread(new Runnable()
                     {
+                        @Override
                         public void run()
                         {
                             game.changeOilField(oilField);
-                            OilImpMenu oim = (OilImpMenu)menuPanel.getComponents()[0];
+                            OilImpMenu oim = getCurrentMenu();
                             oim.setCurrentOilField(oilField);
                             oim.defaultAction();
                         }
@@ -183,8 +184,11 @@ public class OilImpGUI
                         @Override
                         public void run() 
                         {
-                            OilImpMenu oim = (OilImpMenu)menuPanel.getComponents()[1];
-                            oim.defaultAction();
+                            OilImpMenu oim = getCurrentMenu();
+                            if (oim != null)
+                            {
+                                oim.defaultAction();
+                            }
                         }
                     }).start();
                 }
@@ -193,6 +197,19 @@ public class OilImpGUI
 
         this.oilFieldBox.addItemListener(oilFieldListener);
         this.menuBox.addItemListener(menuListener);
+    }
+    
+    private OilImpMenu getCurrentMenu()
+    {
+        OilImpMenu oim = null;
+        for (Component c: menuPanel.getComponents())
+        {
+            if (c.isVisible())
+            {
+                oim = (OilImpMenu)c;
+            }
+        }
+        return oim;
     }
 
     private void prepareLog()
