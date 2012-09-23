@@ -194,6 +194,7 @@ public class RefineryMenu extends OilImpMenu implements ActionListener,
             this.consumeValueFields[t].setEnabled(false);
             this.consumePanel.add(this.consumeValueFields[t]);
         }
+        this.consumeValueFields[1].setEnabled(true);
         
         
         this.choosePanel = new JPanel(new BorderLayout());
@@ -292,6 +293,26 @@ public class RefineryMenu extends OilImpMenu implements ActionListener,
         
     }
     
+    public void produce()
+    {
+        OilImp.Ressource[] resses = {OilImp.Ressource.KEROSIN,
+                                     OilImp.Ressource.DIESEL,
+                                     OilImp.Ressource.BENZIN};
+        OilImp.Ressource ress = null;
+        int ressAmountInt = 0;
+        int workers = 0;
+        for (int t = 0; t < 3; t++)
+        {
+            if (this.ressAmount[t].isEnabled())
+            {
+                ress = resses[t];
+                ressAmountInt = new Integer(consumeValueFields[0].getText());
+                workers = new Integer(this.consumeValueFields[1].getText());
+            }
+        }
+
+        this.game.produceInRefinery(ress, ressAmountInt, workers);
+    }
     
 
     @Override
@@ -368,25 +389,15 @@ public class RefineryMenu extends OilImpMenu implements ActionListener,
         
         if (ae.getSource() == this.produceButton)
         {
-            OilImp.Ressource[] resses = {OilImp.Ressource.KEROSIN,
-                                         OilImp.Ressource.DIESEL,
-                                         OilImp.Ressource.BENZIN};
-            OilImp.Ressource ress = null;
-            int rohoelAmount = 0;
-            int ressAmount = 0;
-            int workers = 0;
-            for (int t = 0; t < 3; t++)
+            new Thread(new Runnable()
             {
-                if (this.ressAmount[t].isEnabled())
+                @Override
+                public void run()
                 {
-                    ress = resses[t];
-                    rohoelAmount = new Integer(this.ressAmount[t].getText());
-                    ressAmount = (int)(rohoelAmount / this.ressFactors[t]);
-                    workers = new Integer(this.consumeValueFields[1].getText());
+                    produce();
+                    getRefineryInformation();
                 }
-            }
-            
-            this.game.produceInRefinery(ress, ressAmount, workers);
+            }).start();
         }
     }
     
@@ -450,41 +461,29 @@ public class RefineryMenu extends OilImpMenu implements ActionListener,
     }
 
     @Override
-    public void changedUpdate(DocumentEvent e)
+    public synchronized void changedUpdate(final DocumentEvent e)
     {
-//         int currW = new Integer(this.currentRessLabels[0].getText());
-//         int currR = new Integer(this.currentRessLabels[1].getText());
-//         int currK = new Integer(this.currentRessLabels[2].getText());
-//         int currD = new Integer(this.currentRessLabels[3].getText());
-//         int currB = new Integer(this.currentRessLabels[4].getText());
-
-        int nr = 0;
-        int newAmount = 0;
-        for (int t = 0; t < this.ressAmount.length; t++)
+        new Thread(new Runnable()
         {
-            if (e.getDocument() == this.ressAmount[t].getDocument())
+            public void run()
             {
-                nr = t;
-                newAmount = new Integer("0" + this.ressAmount[t].getText());
+                int nr = 0;
+                for (int t = 0; t < ressAmount.length; t++)
+                {
+                    if (e.getDocument() == ressAmount[t].getDocument())
+                    {
+                        nr = t;
+                    }
+                    else
+                    {
+                        ressAmount[t].setText("");
+                    }
+                }
+                
+                updateValues(nr);
+                
             }
-            else
-            {
-                this.ressAmount[t].setText("");
-            }
-        }
-
-        for (int t = 0; t < this.ressAmount.length; t++)
-        {
-            this.afterwardsRessLabels[t + 2].setText(this.currentRessLabels[t + 2].getText());
-        }
-
-        int currRess = new Integer("0" + this.currentRessLabels[nr + 2].getText());
-        String newAmountStr = (currRess + newAmount) + "";
-        this.afterwardsRessLabels[nr + 2].setText(newAmountStr);
-        
-        this.consumeValueFields[1].setText(this.ressMAs[nr] + "");
-        int rohoelNeeded = (int)(newAmount / this.ressFactors[nr]);
-        this.consumeValueFields[0].setText(rohoelNeeded + "");
+        }).start();
     }
 
     
@@ -506,5 +505,39 @@ public class RefineryMenu extends OilImpMenu implements ActionListener,
         int maximum = Math.min(maxRessByCapacity, maxRessByRohoel);
         
         this.ressAmount[ress].setText(maximum + "");
+        
+//        updateValues(ress);
+    }
+    
+    private void updateValues(int ress)
+    {
+        String na = ressAmount[ress].getText();
+        int newAmount = new Integer("0" + (na == null ? "" : na));
+        
+        // Verbleibende Ressourcen
+        // Ress
+        for (int t = 0; t < ressAmount.length; t++)
+        {
+            afterwardsRessLabels[t + 2].setText(currentRessLabels[t + 2].getText());
+        }
+        int currRess = new Integer("0" + currentRessLabels[ress + 2].getText());
+        String newAmountStr = (currRess + newAmount) + "";
+        afterwardsRessLabels[ress + 2].setText(newAmountStr);
+        
+        // MAs
+        int availableMAs = new Integer(currentRessLabels[0].getText());
+        System.out.println("Available MAs " + availableMAs);
+        consumeValueFields[1].setText(Math.min(ressMAs[ress], availableMAs) + "");
+
+        // Benoetigtes Rohoel
+        int rohoelNeeded = (int)(newAmount / ressFactors[ress]);
+        consumeValueFields[0].setText(rohoelNeeded + "");
+        
+        // Verbleibende Ressourcen
+        // Rohoel
+        int currRohoel = new Integer(currentRessLabels[1].getText());
+        int afterwardsRohoel = currRohoel - rohoelNeeded;
+        afterwardsRessLabels[1].setText(afterwardsRohoel + "");
+        
     }
 }
