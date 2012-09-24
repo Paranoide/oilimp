@@ -836,7 +836,7 @@ public class OilImp
 
             doc = this.responseToString(is);
             
-            System.out.println(doc);
+//            System.out.println(doc);
 
             if (this.sessidExpired(doc))
             {
@@ -845,6 +845,7 @@ public class OilImp
             else
             {
                 expired = false;
+                System.out.println("Successfully producing in refinery");
             }
         }
         
