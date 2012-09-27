@@ -18,6 +18,10 @@ public class RefineryInformation
     private int maxBenzin;
     private int maxWorkers;
     
+    private int timeLeftK;
+    private int timeLeftD;
+    private int timeLeftB;
+    
     
     public RefineryInformation(int currR, int currK, int currD, int currB, int currW,
                                           int maxK,  int maxD,  int maxB,  int maxW)
@@ -32,6 +36,10 @@ public class RefineryInformation
         this.maxDiesel = maxD;
         this.maxBenzin = maxB;
         this.maxWorkers = maxW;
+        
+        this.timeLeftK = 0;
+        this.timeLeftD = 0;
+        this.timeLeftB = 0;
     }
     
     @Override
@@ -137,5 +145,35 @@ public class RefineryInformation
     public int getMaxRohoel()
     {
         return 250000;
+    }
+
+    public int getTimeLeftK()
+    {
+        return timeLeftK;
+    }
+
+    public void setTimeLeftK(int timeLeftK)
+    {
+        this.timeLeftK = timeLeftK;
+    }
+
+    public int getTimeLeftD()
+    {
+        return timeLeftD;
+    }
+
+    public void setTimeLeftD(int timeLeftD)
+    {
+        this.timeLeftD = timeLeftD;
+    }
+
+    public int getTimeLeftB()
+    {
+        return timeLeftB;
+    }
+
+    public void setTimeLeftB(int timeLeftB)
+    {
+        this.timeLeftB = timeLeftB;
     }
 }

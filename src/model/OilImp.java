@@ -626,6 +626,10 @@ public class OilImp
         Pattern workersPattern = Pattern.compile("arbeiter_frei=(.*?);");
         Pattern maxWPattern = Pattern.compile("arbeiter_ges=(.*?);");
         
+        Pattern timeLeftKPattern = Pattern.compile(".*Kerosin:.*?endtime=(.*?)&");
+        Pattern timeLeftDPattern = Pattern.compile(".*Diesel:.*?endtime=(.*?)&");
+        Pattern timeLeftBPattern = Pattern.compile(".*Benzin:.*?endtime=(.*?)&");
+        
         int rohoel = -1;
         int kerosin = -1;
         int diesel = -1;
@@ -636,6 +640,10 @@ public class OilImp
         int maxD = -1;
         int maxB = -1;
         int maxW = -1;
+        
+        int timeLeftK = -1;
+        int timeLeftD = -1;
+        int timeLeftB = -1;
         
         boolean expired = true;
         
@@ -779,8 +787,29 @@ public class OilImp
             }
         }
         
+        m = timeLeftKPattern.matcher(doc);
+        if (m.find())
+        {
+            System.out.println(m.group(1));
+        }
+        
+        m = timeLeftDPattern.matcher(doc);
+        if (m.find())
+        {
+            System.out.println(m.group(1));
+        }
+        
+        m = timeLeftBPattern.matcher(doc);
+        if (m.find())
+        {
+            System.out.println(m.group(1));
+        }
+        
         RefineryInformation ri = new RefineryInformation(rohoel, kerosin, diesel, benzin, workers,
                                                                  maxK,    maxD,   maxB,   maxW);
+        ri.setTimeLeftK(timeLeftK);
+        ri.setTimeLeftD(timeLeftD);
+        ri.setTimeLeftB(timeLeftB);
         return ri;
     }
     
