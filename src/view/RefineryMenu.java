@@ -3,6 +3,7 @@ package view;
 import java.awt.*;
 import java.awt.event.*;
 import java.text.DateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import javax.swing.border.*;
 import javax.swing.*;
@@ -23,6 +24,9 @@ public class RefineryMenu extends OilImpMenu implements ActionListener,
                                                         MouseListener,
                                                         DocumentListener
 {
+    private static final String SHOW_AMOUNT = "showamount";
+    private static final String SHOW_TIMELEFT = "showtimeleft";
+    
     
     private OilImp game;
     
@@ -65,6 +69,7 @@ public class RefineryMenu extends OilImpMenu implements ActionListener,
     private JPanel[] ressAmountPanels;
     private JTextField[] ressAmount;
     private JLabel[] ressTimeLeftLabels;
+    private CardLayout[] ressAmountTimeLeftLayouts;
     
     private JButton[] maxButtons;
     
@@ -223,6 +228,7 @@ public class RefineryMenu extends OilImpMenu implements ActionListener,
         this.ressAmount = new JTextField[3];
         this.ressAmountPanels = new JPanel[3];
         this.ressTimeLeftLabels = new JLabel[3];
+        this.ressAmountTimeLeftLayouts = new CardLayout[3];
         this.maxButtons = new JButton[3];
         
         for (int t = 0; t < 3; t++)
@@ -248,12 +254,14 @@ public class RefineryMenu extends OilImpMenu implements ActionListener,
             this.ressAmount[t].setBorder(BorderFactory.createEtchedBorder());
             JPanel tmpRessAmoutPanel = new JPanel(new GridLayout(1, 1));
             tmpRessAmoutPanel.setBorder(BorderFactory.createEmptyBorder(8, 5, 8, 5));
-            this.ressAmountPanels[t] = new JPanel(new GridLayout(1, 1));
-            this.ressAmountPanels[t].add(this.ressAmount[t]);
+            this.ressAmountTimeLeftLayouts[t] = new CardLayout();
+            this.ressAmountPanels[t] = new JPanel(this.ressAmountTimeLeftLayouts[t]);
+            this.ressAmountPanels[t].add(this.ressAmount[t], SHOW_AMOUNT);
             tmpRessAmoutPanel.add(this.ressAmountPanels[t]);
             labelAndFieldPanel.add(tmpRessAmoutPanel);
             
             this.ressTimeLeftLabels[t] = new JLabel("");
+            this.ressAmountPanels[t].add(this.ressTimeLeftLabels[t], SHOW_TIMELEFT);
             
             this.maxButtons[t] = new JButton("Max");
             this.maxButtons[t].setFont(BUTTON_FONT);
@@ -287,46 +295,57 @@ public class RefineryMenu extends OilImpMenu implements ActionListener,
     
     public void getRefineryInformation()
     {
-        this.ri = this.game.getRefinery();
-        this.currentRessLabels[0].setText(ri.getCurrentWorkers() + "");
-        this.currentRessLabels[1].setText(ri.getCurrentRohoel() + "");
-        this.currentRessLabels[2].setText(ri.getCurrentKerosin() + "");
-        this.currentRessLabels[3].setText(ri.getCurrentDiesel() + "");
-        this.currentRessLabels[4].setText(ri.getCurrentBenzin() + "");
-        
-        this.afterwardsRessLabels[0].setText(ri.getCurrentWorkers() + "");
-        this.afterwardsRessLabels[1].setText(ri.getCurrentRohoel() + "");
-        this.afterwardsRessLabels[2].setText(ri.getCurrentKerosin() + "");
-        this.afterwardsRessLabels[3].setText(ri.getCurrentDiesel() + "");
-        this.afterwardsRessLabels[4].setText(ri.getCurrentBenzin() + "");
-        
-        this.capacityLabels[0].setText(ri.getMaxWorkers() + "");
-        this.capacityLabels[1].setText(ri.getMaxRohoel() + "");
-        this.capacityLabels[2].setText(ri.getMaxKerosin() + "");
-        this.capacityLabels[3].setText(ri.getMaxDiesel() + "");
-        this.capacityLabels[4].setText(ri.getMaxBenzin() + "");
-        
-        int timeLeftK = ri.getTimeLeftK();
-        int timeLeftD = ri.getTimeLeftD();
-        int timeLeftB = ri.getTimeLeftB();
-        
-        int[] timeLefts = {timeLeftK, timeLeftD, timeLeftB};
-        for (int t = 0; t < 3; t++)
+        Thread t = new Thread(new Runnable()
         {
-            this.ressAmountPanels[t].removeAll();
-            
-            if (timeLefts[t] > 0)
+            @Override
+            public void run()
             {
-                String s = this.getTimestamp(timeLefts[t]);
-                this.ressTimeLeftLabels[t].setText(s);
-                this.ressAmountPanels[t].add(this.ressTimeLeftLabels[t]);
+                ri = game.getRefinery();
+                currentRessLabels[0].setText(ri.getCurrentWorkers() + "");
+                currentRessLabels[1].setText(ri.getCurrentRohoel() + "");
+                currentRessLabels[2].setText(ri.getCurrentKerosin() + "");
+                currentRessLabels[3].setText(ri.getCurrentDiesel() + "");
+                currentRessLabels[4].setText(ri.getCurrentBenzin() + "");
+
+                afterwardsRessLabels[0].setText(ri.getCurrentWorkers() + "");
+                afterwardsRessLabels[1].setText(ri.getCurrentRohoel() + "");
+                afterwardsRessLabels[2].setText(ri.getCurrentKerosin() + "");
+                afterwardsRessLabels[3].setText(ri.getCurrentDiesel() + "");
+                afterwardsRessLabels[4].setText(ri.getCurrentBenzin() + "");
+
+                capacityLabels[0].setText(ri.getMaxWorkers() + "");
+                capacityLabels[1].setText(ri.getMaxRohoel() + "");
+                capacityLabels[2].setText(ri.getMaxKerosin() + "");
+                capacityLabels[3].setText(ri.getMaxDiesel() + "");
+                capacityLabels[4].setText(ri.getMaxBenzin() + "");
+
+                int timeLeftK = ri.getTimeLeftK();
+                int timeLeftD = ri.getTimeLeftD();
+                int timeLeftB = ri.getTimeLeftB();
+
+                int[] timeLefts = {timeLeftK, timeLeftD, timeLeftB};
+
+                System.out.println(Arrays.toString(timeLefts));
+
+                for (int t = 0; t < 3; t++)
+                {
+                    if (timeLefts[t] > 0)
+                    {
+                        String s = getTimestamp(timeLefts[t] * 1000);
+                        String[] ts = s.split(" ");
+                        ressTimeLeftLabels[t].setText("<html>" + ts[0] + "<br/>" + ts[1] + "</html>");
+                        ressAmountTimeLeftLayouts[t].show(ressAmountPanels[t], SHOW_TIMELEFT);
+                    }
+                    else
+                    {
+                        ressAmount[t].setText("");
+                        ressAmountTimeLeftLayouts[t].show(ressAmountPanels[t], SHOW_AMOUNT);
+                    }
+                }
             }
-            else
-            {
-                this.ressAmount[t].setText("");
-                this.ressAmountPanels[t].add(this.ressAmount[t]);
-            }
-        }
+        });
+        
+        EventQueue.invokeLater(t);
         
     }
     
