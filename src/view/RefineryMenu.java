@@ -2,6 +2,8 @@ package view;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.text.DateFormat;
+import java.util.Date;
 import javax.swing.border.*;
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
@@ -59,8 +61,13 @@ public class RefineryMenu extends OilImpMenu implements ActionListener,
     private JPanel choosePanel;
     private JRadioButton[] chooseRBs;
     private JLabel[] ressLabels;
+    
+    private JPanel[] ressAmountPanels;
     private JTextField[] ressAmount;
+    private JLabel[] ressTimeLeftLabels;
+    
     private JButton[] maxButtons;
+    
     
     private JPanel produceButtonPanel;
     private JButton produceButton;
@@ -71,6 +78,7 @@ public class RefineryMenu extends OilImpMenu implements ActionListener,
     private double benzinFactor  = 0.50;
     private double[] ressFactors = {0.75, 0.60, 0.50};
     private int[] ressMAs        = {40, 27, 37};
+    private RefineryInformation ri = null;
     
     
     public RefineryMenu(OilImp game, String startOilField)
@@ -213,6 +221,8 @@ public class RefineryMenu extends OilImpMenu implements ActionListener,
         
         ButtonGroup rbGroup = new ButtonGroup();
         this.ressAmount = new JTextField[3];
+        this.ressAmountPanels = new JPanel[3];
+        this.ressTimeLeftLabels = new JLabel[3];
         this.maxButtons = new JButton[3];
         
         for (int t = 0; t < 3; t++)
@@ -238,13 +248,18 @@ public class RefineryMenu extends OilImpMenu implements ActionListener,
             this.ressAmount[t].setBorder(BorderFactory.createEtchedBorder());
             JPanel tmpRessAmoutPanel = new JPanel(new GridLayout(1, 1));
             tmpRessAmoutPanel.setBorder(BorderFactory.createEmptyBorder(8, 5, 8, 5));
-            tmpRessAmoutPanel.add(this.ressAmount[t]);
+            this.ressAmountPanels[t] = new JPanel(new GridLayout(1, 1));
+            this.ressAmountPanels[t].add(this.ressAmount[t]);
+            tmpRessAmoutPanel.add(this.ressAmountPanels[t]);
             labelAndFieldPanel.add(tmpRessAmoutPanel);
+            
+            this.ressTimeLeftLabels[t] = new JLabel("");
             
             this.maxButtons[t] = new JButton("Max");
             this.maxButtons[t].setFont(BUTTON_FONT);
             this.maxButtons[t].setEnabled(false);
             this.maxButtons[t].addActionListener(this);
+            this.maxButtons[t].addMouseListener(this);
             JPanel tmpMaxButtonPanel = new JPanel(new GridLayout(1, 1));
             tmpMaxButtonPanel.setBorder(BorderFactory.createEmptyBorder(8, 5, 8, 5));
             tmpMaxButtonPanel.add(this.maxButtons[t]);
@@ -272,7 +287,7 @@ public class RefineryMenu extends OilImpMenu implements ActionListener,
     
     public void getRefineryInformation()
     {
-        RefineryInformation ri = this.game.getRefinery();
+        this.ri = this.game.getRefinery();
         this.currentRessLabels[0].setText(ri.getCurrentWorkers() + "");
         this.currentRessLabels[1].setText(ri.getCurrentRohoel() + "");
         this.currentRessLabels[2].setText(ri.getCurrentKerosin() + "");
@@ -290,6 +305,28 @@ public class RefineryMenu extends OilImpMenu implements ActionListener,
         this.capacityLabels[2].setText(ri.getMaxKerosin() + "");
         this.capacityLabels[3].setText(ri.getMaxDiesel() + "");
         this.capacityLabels[4].setText(ri.getMaxBenzin() + "");
+        
+        int timeLeftK = ri.getTimeLeftK();
+        int timeLeftD = ri.getTimeLeftD();
+        int timeLeftB = ri.getTimeLeftB();
+        
+        int[] timeLefts = {timeLeftK, timeLeftD, timeLeftB};
+        for (int t = 0; t < 3; t++)
+        {
+            this.ressAmountPanels[t].removeAll();
+            
+            if (timeLefts[t] > 0)
+            {
+                String s = this.getTimestamp(timeLefts[t]);
+                this.ressTimeLeftLabels[t].setText(s);
+                this.ressAmountPanels[t].add(this.ressTimeLeftLabels[t]);
+            }
+            else
+            {
+                this.ressAmount[t].setText("");
+                this.ressAmountPanels[t].add(this.ressAmount[t]);
+            }
+        }
         
     }
     
@@ -408,6 +445,14 @@ public class RefineryMenu extends OilImpMenu implements ActionListener,
                 this.switchActiveAmountField(t);
                 break;
             }
+            
+            if (e.getSource() == this.maxButtons[t])
+            {
+                if (!((JButton)e.getSource()).isEnabled())
+                {
+                    this.switchActiveAmountField(t);
+                }
+            }
         }
     }
 
@@ -524,25 +569,46 @@ public class RefineryMenu extends OilImpMenu implements ActionListener,
     
     private void switchActiveAmountField(int index)
     {
+        int[] timeLefts = {-1, -1, -1};
+        if (this.ri != null)
+        {
+            timeLefts[0] = ri.getTimeLeftK();
+            timeLefts[1] = ri.getTimeLeftD();
+            timeLefts[2] = ri.getTimeLeftB();
+        }
+        
         for (int t = 0; t < 3; t++)
         {
-            this.ressAmount[t].setText("");
-            
-            this.ressLabels[t].setEnabled(false);
-            this.ressAmount[t].setEnabled(false);
-            this.maxButtons[t].setEnabled(false);
+            if (timeLefts[t] <= 0)
+            {
+                this.ressAmount[t].setText("");
+
+                this.ressLabels[t].setEnabled(false);
+                this.ressAmount[t].setEnabled(false);
+                this.maxButtons[t].setEnabled(false);
+                
+                if (t == index)
+                {
+                    this.ressLabels[t].setEnabled(true);
+                    this.ressAmount[t].setEnabled(true);
+                    this.maxButtons[t].setEnabled(true);
+
+                    this.ressAmount[t].requestFocus();
+                    this.ressAmount[t].selectAll();
+                }
+            }
             this.chooseRBs[t].setSelected(false);
             if (t == index)
             {
-                this.ressLabels[t].setEnabled(true);
-                this.ressAmount[t].setEnabled(true);
-                this.maxButtons[t].setEnabled(true);
                 this.chooseRBs[t].setSelected(true);
-                
-                this.ressAmount[t].requestFocus();
-                this.ressAmount[t].selectAll();
             }
         }
+    }
+    
+    private String getTimestamp(long offset)
+    {
+        String date = DateFormat.getDateTimeInstance().format(new Date(System.currentTimeMillis() + offset));
+        return date;
     }
     
 }

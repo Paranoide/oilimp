@@ -787,22 +787,33 @@ public class OilImp
             }
         }
         
-        m = timeLeftKPattern.matcher(doc);
-        if (m.find())
+        
+        
+        // doc fuer timeLeftPatterns kuerzen
+        Pattern doc2Pattern = Pattern.compile("Aktuelle Produktion:(.*?)Aktueller Lagerinhalt");
+        Matcher m2 = doc2Pattern.matcher(doc);
+        String doc2 = "";
+        if (m2.find())
         {
-            System.out.println(m.group(1));
+            doc2 = m2.group(1);
         }
         
-        m = timeLeftDPattern.matcher(doc);
+        m = timeLeftKPattern.matcher(doc2);
         if (m.find())
         {
-            System.out.println(m.group(1));
+            timeLeftK = new Integer(m.group(1));
         }
         
-        m = timeLeftBPattern.matcher(doc);
+        m = timeLeftDPattern.matcher(doc2);
         if (m.find())
         {
-            System.out.println(m.group(1));
+            timeLeftD = new Integer(m.group(1));
+        }
+        
+        m = timeLeftBPattern.matcher(doc2);
+        if (m.find())
+        {
+            timeLeftB = new Integer(m.group(1));
         }
         
         RefineryInformation ri = new RefineryInformation(rohoel, kerosin, diesel, benzin, workers,
