@@ -357,28 +357,17 @@ public class RefineryMenu extends OilImpMenu implements ActionListener,
     @Override
     public void actionPerformed(ActionEvent ae)
     {
+        // Radio Buttons
         for (int t = 0; t < 3; t++)
         {
             if (ae.getSource() == this.chooseRBs[t])
             {
-                for (int n = 0; n < 3; n++)
-                {
-                    this.ressLabels[n].setEnabled(false);
-                    this.ressAmount[n].setEnabled(false);
-                    this.maxButtons[n].setEnabled(false);
-                }
-                
-                this.ressLabels[t].setEnabled(true);
-                this.ressAmount[t].setEnabled(true);
-                this.maxButtons[t].setEnabled(true);
-                
-                this.ressAmount[t].requestFocus();
-                this.ressAmount[t].selectAll();
-                
+                this.switchActiveAmountField(t);
                 break;
             }
         }
         
+        // Max-Buttons
         for (int t = 0; t < 3; t++)
         {
             if (ae.getSource() == this.maxButtons[t])
@@ -387,6 +376,7 @@ public class RefineryMenu extends OilImpMenu implements ActionListener,
             }
         }
         
+        // Produce button
         if (ae.getSource() == this.produceButton)
         {
             new Thread(new Runnable()
@@ -412,20 +402,11 @@ public class RefineryMenu extends OilImpMenu implements ActionListener,
     {
         for (int t = 0; t < 3; t++)
         {
-            this.ressLabels[t].setEnabled(false);
-            this.ressAmount[t].setEnabled(false);
-            this.maxButtons[t].setEnabled(false);
-            this.chooseRBs[t].setSelected(false);
             if (e.getSource() == this.ressLabels[t] ||
                 e.getSource() == this.ressAmount[t])
             {
-                this.ressLabels[t].setEnabled(true);
-                this.ressAmount[t].setEnabled(true);
-                this.maxButtons[t].setEnabled(true);
-                this.chooseRBs[t].setSelected(true);
-                
-                this.ressAmount[t].requestFocus();
-                this.ressAmount[t].selectAll();
+                this.switchActiveAmountField(t);
+                break;
             }
         }
     }
@@ -463,8 +444,9 @@ public class RefineryMenu extends OilImpMenu implements ActionListener,
     @Override
     public synchronized void changedUpdate(final DocumentEvent e)
     {
-        new Thread(new Runnable()
+        Thread t = new Thread(new Runnable()
         {
+            @Override
             public void run()
             {
                 int nr = 0;
@@ -473,17 +455,17 @@ public class RefineryMenu extends OilImpMenu implements ActionListener,
                     if (e.getDocument() == ressAmount[t].getDocument())
                     {
                         nr = t;
-                    }
-                    else
-                    {
-                        ressAmount[t].setText("");
+                        break;
                     }
                 }
                 
                 updateValues(nr);
                 
             }
-        }).start();
+        });
+        
+        EventQueue.invokeLater(t);
+        
     }
 
     
@@ -511,7 +493,7 @@ public class RefineryMenu extends OilImpMenu implements ActionListener,
     
     private void updateValues(int ress)
     {
-        String na = ressAmount[ress].getText();
+        String na = ressAmount[ress].getText().trim();
         int newAmount = new Integer("0" + (na == null ? "" : na));
         
         // Verbleibende Ressourcen
@@ -526,7 +508,6 @@ public class RefineryMenu extends OilImpMenu implements ActionListener,
         
         // MAs
         int availableMAs = new Integer(currentRessLabels[0].getText());
-        System.out.println("Available MAs " + availableMAs);
         consumeValueFields[1].setText(Math.min(ressMAs[ress], availableMAs) + "");
 
         // Benoetigtes Rohoel
@@ -540,4 +521,28 @@ public class RefineryMenu extends OilImpMenu implements ActionListener,
         afterwardsRessLabels[1].setText(afterwardsRohoel + "");
         
     }
+    
+    private void switchActiveAmountField(int index)
+    {
+        for (int t = 0; t < 3; t++)
+        {
+            this.ressAmount[t].setText("");
+            
+            this.ressLabels[t].setEnabled(false);
+            this.ressAmount[t].setEnabled(false);
+            this.maxButtons[t].setEnabled(false);
+            this.chooseRBs[t].setSelected(false);
+            if (t == index)
+            {
+                this.ressLabels[t].setEnabled(true);
+                this.ressAmount[t].setEnabled(true);
+                this.maxButtons[t].setEnabled(true);
+                this.chooseRBs[t].setSelected(true);
+                
+                this.ressAmount[t].requestFocus();
+                this.ressAmount[t].selectAll();
+            }
+        }
+    }
+    
 }
