@@ -626,8 +626,8 @@ public class OilImp
         Pattern workersPattern = Pattern.compile("arbeiter_frei=(.*?);");
         Pattern maxWPattern = Pattern.compile("arbeiter_ges=(.*?);");
         
-        Pattern timeLeftKPattern = Pattern.compile(".*Kerosin:.*?endtime=(.*?)&");
-        Pattern timeLeftDPattern = Pattern.compile(".*Diesel:.*?endtime=(.*?)&");
+        Pattern timeLeftKPattern = Pattern.compile(".*Kerosin:.*?endtime=(.*?)&.*?Diesel:");
+        Pattern timeLeftDPattern = Pattern.compile(".*Diesel:.*?endtime=(.*?)&.*?Benzin:");
         Pattern timeLeftBPattern = Pattern.compile(".*Benzin:.*?endtime=(.*?)&");
         
         int rohoel = -1;
