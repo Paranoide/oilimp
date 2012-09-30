@@ -64,6 +64,7 @@ public class RefineryMenu extends OilImpMenu implements ActionListener,
     
     private JPanel choosePanel;
     private JRadioButton[] chooseRBs;
+    private ButtonGroup rbGroup;
     private JLabel[] ressLabels;
     
     private JPanel[] ressAmountPanels;
@@ -224,7 +225,7 @@ public class RefineryMenu extends OilImpMenu implements ActionListener,
         
         this.chooseRBs = new JRadioButton[3];
         
-        ButtonGroup rbGroup = new ButtonGroup();
+        this.rbGroup = new ButtonGroup();
         this.ressAmount = new JTextField[3];
         this.ressAmountPanels = new JPanel[3];
         this.ressTimeLeftLabels = new JLabel[3];
@@ -300,6 +301,8 @@ public class RefineryMenu extends OilImpMenu implements ActionListener,
             @Override
             public void run()
             {
+                switchActiveAmountField(-1);
+                
                 ri = game.getRefinery();
                 currentRessLabels[0].setText(ri.getCurrentWorkers() + "");
                 currentRessLabels[1].setText(ri.getCurrentRohoel() + "");
@@ -596,16 +599,19 @@ public class RefineryMenu extends OilImpMenu implements ActionListener,
             timeLefts[2] = ri.getTimeLeftB();
         }
         
+        this.rbGroup.clearSelection();
         for (int t = 0; t < 3; t++)
         {
-            if (timeLefts[t] <= 0)
-            {
-                this.ressAmount[t].setText("");
+            
+            this.ressAmount[t].setText("");
 
-                this.ressLabels[t].setEnabled(false);
-                this.ressAmount[t].setEnabled(false);
-                this.maxButtons[t].setEnabled(false);
-                
+            this.ressLabels[t].setEnabled(false);
+            this.ressAmount[t].setEnabled(false);
+            this.maxButtons[t].setEnabled(false);
+            
+            
+            if (timeLefts[t] <= 0)
+            {        
                 if (t == index)
                 {
                     this.ressLabels[t].setEnabled(true);
@@ -614,13 +620,11 @@ public class RefineryMenu extends OilImpMenu implements ActionListener,
 
                     this.ressAmount[t].requestFocus();
                     this.ressAmount[t].selectAll();
+                    
+                    this.chooseRBs[t].setSelected(true);
                 }
             }
-            this.chooseRBs[t].setSelected(false);
-            if (t == index)
-            {
-                this.chooseRBs[t].setSelected(true);
-            }
+            
         }
     }
     
