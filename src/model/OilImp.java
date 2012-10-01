@@ -891,6 +891,45 @@ public class OilImp
         
     }
     
+    public synchronized String getStockInformation()
+    {
+        boolean expired = true;
+        String doc = "";
+        
+        while (expired)
+        {
+            InputStream is = this.httpPOST("http://s1.oilimperium.de/index.php",
+                                      "m=0xakm1",
+                                      "sid=" + this.sessid);
+            
+            doc = this.responseToString(is);
+            
+//            System.out.println(doc);
+
+            if (this.sessidExpired(doc))
+            {
+                this.login();
+            }
+            else
+            {
+                expired = false;
+                System.out.println("Successfully producing in refinery");
+            }
+        }
+        
+        String answer = "Es gibt derzeit einige Angebote!";
+        
+        Pattern p = Pattern.compile("Keine Angebote vorhanden");
+        Matcher m = p.matcher(doc);
+        
+        if (m.find())
+        {
+            answer = "Keine Angebote vorhanden!!!";
+        }
+        
+        return answer;
+    }
+    
 
     public synchronized boolean changeOilField(String oilFieldName)
     {
