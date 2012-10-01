@@ -42,11 +42,14 @@ public class OilImpGUI
     private CardLayout menuPanelCards;
 
     private FactoryMenu factoryMenu;
-    private final String FACTORY_ID = "Factory";
+    private final String FACTORY_ID = "Fabrik";
 
     private RefineryMenu refineryMenu;
-    private final String REFINERY_ID = "Refinery";
+    private final String REFINERY_ID = "Raffinerie";
 
+    private StockMenu stockMenu;
+    private final String STOCK_ID = "Aktien";
+    
     // Foot messages
     private JPanel logPanel;
     private TitledBorder logPanelBorder;
@@ -94,7 +97,7 @@ public class OilImpGUI
         this.oilFieldBoxPanel.add(this.oilFieldBox);
 
         // ComboBox2
-        String[] menuNames = new String[]{FACTORY_ID, REFINERY_ID};
+        String[] menuNames = new String[]{FACTORY_ID, REFINERY_ID, STOCK_ID};
         this.menuBox = new JComboBox<>(menuNames);
         this.menuBox.setFont(FONT_ARIAL_18);
         this.menuBoxPanel.add(this.menuBox);
@@ -111,6 +114,9 @@ public class OilImpGUI
 
         this.refineryMenu = new RefineryMenu(this.game, oilFieldNames[0]);
         this.menuPanel.add(this.refineryMenu, REFINERY_ID);
+        
+        this.stockMenu = new StockMenu(this.game, oilFieldNames[0]);
+        this.menuPanel.add(this.stockMenu, STOCK_ID);
         
         // ---------------------------------------------------------------------
 
