@@ -74,6 +74,23 @@ public class OilImpGUI
         this.mainPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         this.mainFrame.add(this.mainPanel);
 
+        this.mainFrame.setVisible(true);
+        
+        // Foot Log Panel
+        this.logPanel = new JPanel(new GridLayout(1, 1));
+        this.logPanel.setPreferredSize(new Dimension(0, 200));
+        this.logPanelBorder = createBorder("Log", FONT_CALIBRI_22_B, 0);
+        this.logPanel.setBorder(this.logPanelBorder);
+
+        this.logArea = new JTextArea();
+        this.logArea.setFont(FONT_CNEW_12);
+        this.logAreaScroller = new JScrollPane(this.logArea);
+
+        this.logPanel.add(this.logAreaScroller);
+        this.mainPanel.add(this.logPanel, BorderLayout.SOUTH);
+
+        this.prepareLog();
+        
         // HeadPanel
         this.comboBoxesPanel = new JPanel(new GridLayout(1, 2));
         ((GridLayout)this.comboBoxesPanel.getLayout()).setVgap(10);
@@ -91,10 +108,24 @@ public class OilImpGUI
         this.comboBoxesPanel.add(this.menuBoxPanel);
 
         // ComboBox1
-        String[] oilFieldNames = new String[]{"Tsrif", "Dnoces", "Driht", "Htrof"};
-        this.oilFieldBox = new JComboBox<>(oilFieldNames);
+        this.oilFieldBox = new JComboBox<>();
         this.oilFieldBox.setFont(FONT_ARIAL_18);
         this.oilFieldBoxPanel.add(this.oilFieldBox);
+        
+//        String[] oilFieldNames = new String[]{"Tsrif", "Dnoces", "Driht", "Htrof"};
+        final String[] oilFieldNames = this.game.getOilFieldNames();
+        Runnable r = new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                for (int t = 0; t < oilFieldNames.length; t++)
+                {
+                    oilFieldBox.addItem(oilFieldNames[t]);
+                }
+            }
+        };
+        EventQueue.invokeLater(r);
 
         // ComboBox2
         String[] menuNames = new String[]{FACTORY_ID, REFINERY_ID, STOCK_ID};
@@ -121,19 +152,7 @@ public class OilImpGUI
         // ---------------------------------------------------------------------
 
 
-        // Foot Log Panel
-        this.logPanel = new JPanel(new GridLayout(1, 1));
-        this.logPanel.setPreferredSize(new Dimension(0, 200));
-        this.logPanelBorder = createBorder("Log", FONT_CALIBRI_22_B, 0);
-        this.logPanel.setBorder(this.logPanelBorder);
-
-        this.logArea = new JTextArea();
-        this.logArea.setFont(FONT_CNEW_12);
-        this.logAreaScroller = new JScrollPane(this.logArea);
-
-        this.logPanel.add(this.logAreaScroller);
-        this.mainPanel.add(this.logPanel, BorderLayout.SOUTH);
-
+        
 
         this.applyColorToAllComponents(this.mainFrame,
                                        backgroundColor,
@@ -142,10 +161,11 @@ public class OilImpGUI
                                        JTextArea.class,
                                        JTextField.class);
 
-        this.mainFrame.setVisible(true);
-
+        
         this.setListeners();
-        this.prepareLog();
+        
+        
+
         
     }
 

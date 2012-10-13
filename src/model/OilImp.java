@@ -64,8 +64,8 @@ public class OilImp
     private int lastGetCode = 0;
     private int lastPostCode = 0;
     
-    private int[] fields = {102340, 103601, 104359, 104929};
-    private String[] fieldNames = {"Tsrif", "Dnoces", "Driht", "Htrof"};
+    private Integer[] fields = null; // = {102340, 103601, 104359, 104929};
+    private String[] fieldNames = null; // = {"Tsrif", "Dnoces", "Driht", "Htrof"};
     
     private int currOilField = 0;
     
@@ -329,7 +329,7 @@ public class OilImp
 
                 System.out.println("...done!");
 
-                is = this.httpPOST("http://oilimperium.de/index.php",
+                is = this.httpPOST("http://www.oilimperium.de/index.php",
                                    "name=" + this.username,
                                    "pw=" + this.password,
                                    "m=login",
@@ -362,6 +362,20 @@ public class OilImp
                     this.sessid = m5.group();
                     System.out.println("Sessid: " + this.sessid);
                 }
+                
+                Pattern oilFieldsPattern = Pattern.compile("document.getElementById\\('quelle'\\).value='([0-9]*).*?Feld (.*?)</a></td>");
+                Matcher oilFieldsMatcher = oilFieldsPattern.matcher(doc);
+                LinkedList<String> oilFieldNamesList = new LinkedList<>();
+                LinkedList<Integer> oilFieldIDList   = new LinkedList<>();
+                
+                while (oilFieldsMatcher.find())
+                {
+                    oilFieldIDList.add(new Integer(oilFieldsMatcher.group(1)));
+                    oilFieldNamesList.add(oilFieldsMatcher.group(2));
+                }
+                
+                this.fieldNames = oilFieldNamesList.toArray(new String[oilFieldNamesList.size()]);
+                this.fields     = oilFieldIDList.toArray(new Integer[oilFieldIDList.size()]);
 
                 if (!this.sessidExpired(doc))
                 {
@@ -934,6 +948,11 @@ public class OilImp
     public synchronized boolean changeOilField(String oilFieldName)
     {
         int oilFieldNr = -1;
+        if (this.fieldNames == null)
+        {
+            this.login();
+        }
+        
         for (int t = 0; t < this.fieldNames.length; t++)
         {
             if (this.fieldNames[t].equals(oilFieldName))
@@ -953,13 +972,16 @@ public class OilImp
 
     public synchronized boolean changeOilField(int oilFieldNr)
     {
-
+        if (fields == null)
+        {
+            this.login();
+        }
         if (oilFieldNr >= 0 && oilFieldNr < fields.length && oilFieldNr != this.currOilField)
         {
             System.out.println(this.formatOutput("Change to oilField nr %d.", oilFieldNr));
-        
+
             boolean expired = true;
-            
+
             while (expired)
             {
                 InputStream is = this.httpPOST("http://s1.oilimperium.de/index.php?sid=" + this.sessid + "&m=0xZZU1",
@@ -967,10 +989,10 @@ public class OilImp
                           "m=0xZZU1",
                           "quelle=" + fields[oilFieldNr],
                           "last_side=11111111");
-                          
+
                 String doc = this.responseToString(is);
                 //System.out.println(doc);
-                
+
                 if (this.sessidExpired(doc))
                 {
                     this.login();
@@ -980,7 +1002,7 @@ public class OilImp
                     expired = false;
                 }
             }
-            
+
             this.currOilField = oilFieldNr;
 
             System.out.println(this.formatOutput("Successfully changed to oil field nr %d.", oilFieldNr));
@@ -994,12 +1016,27 @@ public class OilImp
         {
 //            System.out.println(this.formatOutput("Already on oil field nr %d.", oilFieldNr));
         }
+        
         return true;
     }
 
     public String getCurrentOilField()
     {
-        return this.fieldNames[this.currOilField];
+        if (this.fieldNames == null)
+        {
+            this.login();
+        }
+        String currField = this.fieldNames[this.currOilField];
+        return currField;
+    }
+    
+    public String[] getOilFieldNames()
+    {
+        if (this.fieldNames == null)
+        {
+            this.login();
+        }
+        return this.fieldNames;
     }
     
     private String responseToString(InputStream is)
