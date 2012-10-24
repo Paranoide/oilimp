@@ -50,6 +50,9 @@ public class OilImpGUI
     private StockMenu stockMenu;
     private final String STOCK_ID = "Aktien";
     
+    private UtilityMenu utilMenu;
+    private final String UTIL_ID = "Verschiedenes";
+    
     // Foot messages
     private JPanel logPanel;
     private TitledBorder logPanelBorder;
@@ -128,7 +131,7 @@ public class OilImpGUI
         EventQueue.invokeLater(r);
 
         // ComboBox2
-        String[] menuNames = new String[]{FACTORY_ID, REFINERY_ID, STOCK_ID};
+        String[] menuNames = new String[]{FACTORY_ID, REFINERY_ID, STOCK_ID, UTIL_ID};
         this.menuBox = new JComboBox<>(menuNames);
         this.menuBox.setFont(FONT_ARIAL_18);
         this.menuBoxPanel.add(this.menuBox);
@@ -148,6 +151,9 @@ public class OilImpGUI
         
         this.stockMenu = new StockMenu(this.game, oilFieldNames[0]);
         this.menuPanel.add(this.stockMenu, STOCK_ID);
+        
+        this.utilMenu = new UtilityMenu(game, oilFieldNames[0]);
+        this.menuPanel.add(this.utilMenu, UTIL_ID);
         
         // ---------------------------------------------------------------------
 
