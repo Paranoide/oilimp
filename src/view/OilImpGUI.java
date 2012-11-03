@@ -15,7 +15,7 @@ import model.OilImp;
 
 import static util.OilImpDesignFactory.*;
 
-public class OilImpGUI
+public class OilImpGUI implements Runnable
 {
     
     private OilImp game;
@@ -23,6 +23,9 @@ public class OilImpGUI
     private JFrame mainFrame;
 
     private JPanel mainPanel;
+    
+    private int width;
+    private int height;
 
 
     // HeadPanel
@@ -68,10 +71,15 @@ public class OilImpGUI
     public OilImpGUI(OilImp gameInstance, int width, int height)
     {
         this.game = gameInstance;
-        
+        this.width = width;
+        this.height = height;
+    }
+    
+    private void init()
+    {
         this.mainFrame = new JFrame("Oil Imperium");
         this.mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.mainFrame.setSize(width, height);
+        this.mainFrame.setSize(this.width, this.height);
 
         this.mainPanel = new JPanel(new BorderLayout(10, 10));
         this.mainPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
@@ -115,7 +123,6 @@ public class OilImpGUI
         this.oilFieldBox.setFont(FONT_ARIAL_18);
         this.oilFieldBoxPanel.add(this.oilFieldBox);
         
-//        String[] oilFieldNames = new String[]{"Tsrif", "Dnoces", "Driht", "Htrof"};
         final String[] oilFieldNames = this.game.getOilFieldNames();
         Runnable r = new Runnable()
         {
@@ -313,13 +320,22 @@ public class OilImpGUI
         }
     }
 
-
+    @Override
+    public void run()
+    {
+        this.init();
+    }
+    
+    
+    
+    
     
     public static void main(String[] args)
     {
         setLAF();
         OilImp game = new OilImp();
         OilImpGUI oig = new OilImpGUI(game);
+        EventQueue.invokeLater(oig);
     }
 
 
