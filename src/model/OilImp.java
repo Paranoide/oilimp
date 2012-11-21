@@ -1,37 +1,13 @@
 package model;
 
+import java.awt.event.*;
 import java.io.*;
 import java.net.*;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.HashMap;
-
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-
-import org.xml.sax.InputSource;
-import javax.xml.xpath.*;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-
-import java.awt.Desktop;
-
-import java.security.MessageDigest;
-
-import java.util.regex.Pattern;
-import java.util.regex.Matcher;
-
-import javax.swing.JOptionPane;
-
 import java.text.DateFormat;
-
 import java.util.Date;
-import javax.swing.JDialog;
-
-import java.awt.event.*;
-
-import java.io.*;
-
+import java.util.LinkedList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import view.LoginForm;
 
 public class OilImp
@@ -67,7 +43,7 @@ public class OilImp
     private Integer[] fields = null; // = {102340, 103601, 104359, 104929};
     private String[] fieldNames = null; // = {"Tsrif", "Dnoces", "Driht", "Htrof"};
     
-    private int currOilField = 0;
+    private int currOilFieldIndex = 0;
     
     public OilImp()
     {
@@ -397,12 +373,10 @@ public class OilImp
         System.out.println("Sessid: " + this.sessid);
         
         String doc = "";
-        String line = "";
         
         InputStream is = this.httpGET("http://s1.oilimperium.de/index.php",
                                   "sid=" + this.sessid,
                                   menu);
-        BufferedReader br = new BufferedReader(new InputStreamReader(is));
                 
         doc = this.responseToString(is);
         
@@ -451,7 +425,7 @@ public class OilImp
 
     public synchronized String[][] getFactory()
     {
-        return this.getFactory(this.currOilField);
+        return this.getFactory(this.currOilFieldIndex);
     }
         
     public synchronized String[][] getFactory(int oilFieldNr)
@@ -463,7 +437,7 @@ public class OilImp
         if (success)
         {
 
-            System.out.println(this.formatOutput("Getting factory information on oil field %d", this.currOilField));
+            System.out.println(this.formatOutput("Getting factory information on oil field %d", this.currOilFieldIndex));
 
             boolean expired = true;
             String doc = "";
@@ -581,7 +555,7 @@ public class OilImp
 
     public synchronized void produceInFactory(int prodNr)
     {
-        this.produceInFactory(this.currOilField, prodNr);
+        this.produceInFactory(this.currOilFieldIndex, prodNr);
     }
 
     public synchronized void produceInFactory(int oilFieldNr, int prodNr)
@@ -927,7 +901,7 @@ public class OilImp
             else
             {
                 expired = false;
-                System.out.println("Successfully producing in refinery");
+                System.out.println("Successfully retrieved stock information");
             }
         }
         
@@ -942,6 +916,77 @@ public class OilImp
         }
         
         return answer;
+    }
+    
+    public boolean repairAllEQ()
+    {
+        boolean success = true;
+        int memCurrOF = this.currOilFieldIndex;
+        
+        System.err.println("Repairing " + memCurrOF);
+        if (!this.repairEQ())
+        {
+            success = false;
+        }
+        System.err.println("...done (" + success + ")");
+        
+        for (int t = 0; t < this.fieldNames.length; t++)
+        {
+            if (t != memCurrOF)
+            {
+                this.changeOilField(t);
+                System.err.println("Repairing " + t);
+                
+                boolean b = this.repairEQ();
+                
+                if (!b)
+                {
+                    success = false;
+                }
+                System.err.println("...done (" + b + ")");
+            }
+        }
+        this.changeOilField(memCurrOF);
+        return success;
+    }
+    
+    public boolean repairEQ()
+    {
+        boolean expired = true;
+        String doc;
+        
+        while (expired)
+        {
+            InputStream is = this.httpPOST("http://s1.oilimperium.de/index.php",
+                                      "Submit=ausf%C3%BChren",
+                                      "m=0xBU01",
+                                      "g=",
+                                      "q=",
+                                      "equip=100",
+                                      "r=1",
+                                      "r=2",
+                                      "r_pipeline=1",
+                                      "r_tank=1",
+                                      "r_turm=1",
+                                      "sid=" + this.sessid);
+            
+            doc = this.responseToString(is);
+            
+//            System.out.println(doc);
+
+            if (this.sessidExpired(doc))
+            {
+                this.login();
+            }
+            else
+            {
+                expired = false;
+                String ofName = this.fieldNames[this.currOilFieldIndex];
+                System.out.println("Successfully repaired equipment on field " + ofName);
+            }
+        }
+        
+        return true;
     }
     
 
@@ -976,7 +1021,7 @@ public class OilImp
         {
             this.login();
         }
-        if (oilFieldNr >= 0 && oilFieldNr < fields.length && oilFieldNr != this.currOilField)
+        if (oilFieldNr >= 0 && oilFieldNr < fields.length && oilFieldNr != this.currOilFieldIndex)
         {
             System.out.println(this.formatOutput("Change to oilField nr %d.", oilFieldNr));
 
@@ -1003,7 +1048,7 @@ public class OilImp
                 }
             }
 
-            this.currOilField = oilFieldNr;
+            this.currOilFieldIndex = oilFieldNr;
 
             System.out.println(this.formatOutput("Successfully changed to oil field nr %d.", oilFieldNr));
         }
@@ -1026,7 +1071,7 @@ public class OilImp
         {
             this.login();
         }
-        String currField = this.fieldNames[this.currOilField];
+        String currField = this.fieldNames[this.currOilFieldIndex];
         return currField;
     }
     
@@ -1152,9 +1197,8 @@ public class OilImp
     {
         
         OilImp o = new OilImp();
-//        o.produceInRefinery(Ressource.DIESEL, (int)(140/0.6), 27);
-        RefineryInformation ri = o.getRefinery();
-        System.err.println(ri.toString());
+        o.changeOilField("Neves");
+        o.repairEQ();
         
     }
 }

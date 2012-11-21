@@ -21,6 +21,7 @@ public class UtilityMenu extends OilImpMenu implements ActionListener
     private JPanel utilityPanel;
     private TitledBorder utilityPanelBorder;
     private AlarmPanel alarmPanel;
+    private RepairPanel repairPanel;
     
     private JPanel ressPricePanel;
     private TitledBorder ressPricePanelBorder;
@@ -44,6 +45,10 @@ public class UtilityMenu extends OilImpMenu implements ActionListener
         
         this.alarmPanel = new AlarmPanel();
         this.utilityPanel.add(this.alarmPanel);
+        
+        this.repairPanel = new RepairPanel();
+        this.utilityPanel.add(this.repairPanel);
+        
         
         this.ressPricePanel = new JPanel(new GridLayout(1, 4));
         this.ressPricePanelBorder = createBorder("Preise", BORDER_SMALL_FONT, 0);
@@ -257,6 +262,54 @@ public class UtilityMenu extends OilImpMenu implements ActionListener
                         JOptionPane.showMessageDialog(null, msg, title, type);
                     }
                 }
+            }
+        }
+    }
+    
+    private class RepairPanel extends JPanel implements ActionListener
+    {
+        private JLabel repairPanelLabel;
+        private JButton repairAllButton;
+        
+        public RepairPanel()
+        {
+            this.setLayout(new BorderLayout());
+            this.setBorder(createBorder("Repair equiment", BORDER_SMALL_FONT, 1));
+            
+            this.repairPanelLabel = new JLabel("Repair equipment");
+            this.repairPanelLabel.setFont(LABEL_FONT);
+            JPanel tmpPanel = new JPanel(new GridLayout(1, 1));
+            tmpPanel.setBorder(BorderFactory.createEmptyBorder(8, 5, 8, 5));
+            tmpPanel.add(this.repairPanelLabel);
+                        
+            this.add(tmpPanel, BorderLayout.WEST);
+            
+            
+            this.repairAllButton = new JButton("Repair all");
+            this.repairAllButton.setFont(BUTTON_FONT);
+            this.repairAllButton.addActionListener(this);
+            tmpPanel = new JPanel(new GridLayout(1, 1));
+            tmpPanel.setBorder(BorderFactory.createEmptyBorder(8, 5, 8, 5));
+            tmpPanel.add(this.repairAllButton);
+            
+            this.add(tmpPanel, BorderLayout.EAST);
+        }
+        
+        @Override
+        public void actionPerformed(ActionEvent ae)
+        {
+            if (ae.getSource() == this.repairAllButton)
+            {
+                new Thread(new Runnable()
+                {
+                    @Override
+                    public void run()
+                    {
+                        repairAllButton.setEnabled(false);
+                        game.repairAllEQ();
+                        repairAllButton.setEnabled(true);
+                    }
+                }).start();
             }
         }
     }
