@@ -16,6 +16,8 @@ import model.OilImp;
 import model.FactorySettings;
 import model.RefineryInformation;
 
+import static model.RefineryInformation.*;
+
 /**
  *
  * @author Paranoide
@@ -77,13 +79,9 @@ public class RefineryMenu extends OilImpMenu implements ActionListener,
     
     private JPanel produceButtonPanel;
     private JButton produceButton;
+    private JButton produceAllMaxButton;
     
     
-    private double kerosinFactor = 0.75;
-    private double dieselFactor  = 0.60;
-    private double benzinFactor  = 0.50;
-    private double[] ressFactors = {0.75, 0.60, 0.50};
-    private int[] ressMAs        = {40, 27, 37};
     private RefineryInformation ri = null;
     
     
@@ -275,11 +273,15 @@ public class RefineryMenu extends OilImpMenu implements ActionListener,
             labelAndFieldPanel.add(tmpMaxButtonPanel);
         }
         
-        this.produceButtonPanel = new JPanel(new GridLayout(1, 1));
+        this.produceButtonPanel = new JPanel(new GridLayout(1, 2));
         this.produceButton = new JButton("Herstellen");
         this.produceButton.setFont(BUTTON_FONT);
         this.produceButton.addActionListener(this);
         this.produceButtonPanel.add(this.produceButton);
+        this.produceAllMaxButton = new JButton("Alles auf max");
+        this.produceAllMaxButton.setFont(BUTTON_FONT);
+        this.produceAllMaxButton.addActionListener(this);
+        this.produceButtonPanel.add(this.produceAllMaxButton);
         
         this.producePanel.add(this.choosePanel, BorderLayout.CENTER);
         this.producePanel.add(this.produceButtonPanel, BorderLayout.SOUTH);
@@ -448,6 +450,20 @@ public class RefineryMenu extends OilImpMenu implements ActionListener,
                 }
             }).start();
         }
+        
+        // Produce all max button
+        if (ae.getSource() == this.produceAllMaxButton)
+        {
+            new Thread(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    game.fillAllRefineries();
+                    getRefineryInformation();
+                }
+            }).start();
+        }
     }
     
     @Override
@@ -548,7 +564,7 @@ public class RefineryMenu extends OilImpMenu implements ActionListener,
         int maxRessByCapacity = currRessCap - currRess;
         
         int currRohoel = new Integer(this.currentRessLabels[1].getText());
-        int maxRessByRohoel = (int)(currRohoel * this.ressFactors[ress]);
+        int maxRessByRohoel = (int)(currRohoel * RESS_FACTORS[ress]);
         
         
         int maximum = Math.min(maxRessByCapacity, maxRessByRohoel);
@@ -575,10 +591,10 @@ public class RefineryMenu extends OilImpMenu implements ActionListener,
         
         // MAs
         int availableMAs = new Integer(currentRessLabels[0].getText());
-        consumeValueFields[1].setText(Math.min(ressMAs[ress], availableMAs) + "");
+        consumeValueFields[1].setText(Math.min(RESS_MA[ress], availableMAs) + "");
 
         // Benoetigtes Rohoel
-        int rohoelNeeded = (int)(newAmount / ressFactors[ress]);
+        int rohoelNeeded = (int)(newAmount / RESS_FACTORS[ress]);
         consumeValueFields[0].setText(rohoelNeeded + "");
         
         // Verbleibende Ressourcen

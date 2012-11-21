@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import static model.RefineryInformation.*;
 import view.LoginForm;
 
 public class OilImp
@@ -366,6 +367,14 @@ public class OilImp
         }
     }
 
+    /**
+     * Holt die aktuellen Rohstoff-Preise und steckt sie in ein
+     * 4-elementiges Array. Sind alle Preise = 0, so wird davon ausgegangen,
+     * dass ein Fehler unterlaufen ist (z.B. beim Parsen oder beim Request) und
+     * es wird <code>null</code> zurueckgegeben.
+     * 
+     * @return Die Preise als Array oder <code>null</code> bei einem Fehler
+     */
     public synchronized int[] checkPrices()
     {
         String menu = "m=0xWE01";
@@ -877,6 +886,71 @@ public class OilImp
             }
         }
         
+    }
+    
+    public void fillAllRefineries()
+    {
+        int memCurrOF = this.currOilFieldIndex;
+        
+        for (int t = 0; t < this.fieldNames.length + 1; t++)
+        {
+            if (t != memCurrOF)
+            {
+                // do the memCurrOF last
+                if (t == this.fieldNames.length)
+                {
+                    t = memCurrOF;
+                }
+                
+                this.changeOilField(this.fieldNames[t]);
+                RefineryInformation ri = this.getRefinery();
+
+                // Shared variable for all kinds of ress
+                int workerAmount = ri.getCurrentWorkers();
+                
+                // Diesel produzieren
+                if (ri.getTimeLeftD() < 0)
+                {
+                    int currD = ri.getCurrentDiesel();
+                    int maxD  = ri.getMaxDiesel();
+                    int currR = ri.getCurrentRohoel();
+                    int toProduce = Math.min(maxD - currD, (int)(currR*RESS_FACTORS[1]));
+                    int workers = Math.min(workerAmount, RESS_MA[1]);
+                    workerAmount -= workers;
+                    this.produceInRefinery(Ressource.DIESEL, (int)(toProduce/RESS_FACTORS[1]), workers);
+                }
+                
+                // Benzin produzieren
+                if (ri.getTimeLeftB() < 0)
+                {
+                    int currB = ri.getCurrentBenzin();
+                    int maxB  = ri.getMaxBenzin();
+                    int currR = ri.getCurrentRohoel();
+                    int toProduce = Math.min(maxB - currB, (int)(currR*RESS_FACTORS[2]));
+                    int workers = Math.min(workerAmount, RESS_MA[2]);
+                    workerAmount -= workers;
+                    this.produceInRefinery(Ressource.BENZIN, (int)(toProduce/RESS_FACTORS[2]), workers);
+                }
+                
+                // Kerosin produzieren
+                if (ri.getTimeLeftK() < 0)
+                {
+                    int currK = ri.getCurrentKerosin();
+                    int maxK  = ri.getMaxKerosin();
+                    int currR = ri.getCurrentRohoel();
+                    int toProduce = Math.min(maxK - currK, (int)(currR*RESS_FACTORS[0]));
+                    int workers = Math.min(workerAmount, RESS_MA[0]);
+                    workerAmount -= workers;
+                    this.produceInRefinery(Ressource.KEROSIN, (int)(toProduce/RESS_FACTORS[0]), workers);
+                }
+                
+                // do the memeCurrOF last
+                if (t == memCurrOF)
+                {
+                    t = this.fieldNames.length;
+                }
+            }
+        }
     }
     
     public synchronized String getStockInformation()
