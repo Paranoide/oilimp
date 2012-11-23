@@ -123,59 +123,56 @@ public class OilImpGUI implements Runnable
         this.oilFieldBox.setFont(FONT_ARIAL_18);
         this.oilFieldBoxPanel.add(this.oilFieldBox);
         
-        final String[] oilFieldNames = this.game.getOilFieldNames();
-        Runnable r = new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                for (int t = 0; t < oilFieldNames.length; t++)
-                {
-                    oilFieldBox.addItem(oilFieldNames[t]);
-                }
-            }
-        };
-        EventQueue.invokeLater(r);
-
-        // ComboBox2
-        String[] menuNames = new String[]{FACTORY_ID, REFINERY_ID, STOCK_ID, UTIL_ID};
-        this.menuBox = new JComboBox<>(menuNames);
-        this.menuBox.setFont(FONT_ARIAL_18);
-        this.menuBoxPanel.add(this.menuBox);
-
-
-        // MenuMainPanel -------------------------------------------------------
-        this.menuPanelCards = new CardLayout();
-        this.menuPanel = new JPanel(this.menuPanelCards);
-        this.mainPanel.add(this.menuPanel, BorderLayout.CENTER);
-        
-        this.factoryMenu = new FactoryMenu(this.game, oilFieldNames[0]);
-        this.menuPanel.add(this.factoryMenu, FACTORY_ID);
-        this.factoryMenu.defaultAction();
-
-        this.refineryMenu = new RefineryMenu(this.game, oilFieldNames[0]);
-        this.menuPanel.add(this.refineryMenu, REFINERY_ID);
-        
-        this.stockMenu = new StockMenu(this.game, oilFieldNames[0]);
-        this.menuPanel.add(this.stockMenu, STOCK_ID);
-        
-        this.utilMenu = new UtilityMenu(game, oilFieldNames[0]);
-        this.menuPanel.add(this.utilMenu, UTIL_ID);
+        final String[] oilFieldNames = {"a", "b"}; //this.game.getOilFieldNames();
+//        Runnable r = new Runnable()
+//        {
+//            @Override
+//            public void run()
+//            {
+//                for (int t = 0; t < oilFieldNames.length; t++)
+//                {
+//                    oilFieldBox.addItem(oilFieldNames[t]);
+//                }
+//            }
+//        };
+//        EventQueue.invokeLater(r);
+//
+//        // ComboBox2
+//        String[] menuNames = new String[]{FACTORY_ID, REFINERY_ID, STOCK_ID, UTIL_ID};
+//        this.menuBox = new JComboBox<>(menuNames);
+//        this.menuBox.setFont(FONT_ARIAL_18);
+//        this.menuBoxPanel.add(this.menuBox);
+//
+//
+//        // MenuMainPanel -------------------------------------------------------
+//        this.menuPanelCards = new CardLayout();
+//        this.menuPanel = new JPanel(this.menuPanelCards);
+//        this.mainPanel.add(this.menuPanel, BorderLayout.CENTER);
+//        
+//        this.factoryMenu = new FactoryMenu(this.game, oilFieldNames[0]);
+//        this.menuPanel.add(this.factoryMenu, FACTORY_ID);
+////        this.factoryMenu.defaultAction();
+//
+//        this.refineryMenu = new RefineryMenu(this.game, oilFieldNames[0]);
+//        this.menuPanel.add(this.refineryMenu, REFINERY_ID);
+//        
+//        this.stockMenu = new StockMenu(this.game, oilFieldNames[0]);
+//        this.menuPanel.add(this.stockMenu, STOCK_ID);
+//        
+//        this.utilMenu = new UtilityMenu(game, oilFieldNames[0]);
+//        this.menuPanel.add(this.utilMenu, UTIL_ID);
         
         // ---------------------------------------------------------------------
 
 
         
 
-        this.applyColorToAllComponents(this.mainFrame,
-                                       backgroundColor,
-                                       JButton.class,
-                                       JComboBox.class,
-                                       JTextArea.class,
-                                       JTextField.class);
-
-        
-        this.setListeners();
+//        this.applyColorToAllComponents(this.mainFrame,
+//                                       backgroundColor,
+//                                       JButton.class,
+//                                       JComboBox.class,
+//                                       JTextArea.class,
+//                                       JTextField.class);
         
         
 
@@ -293,7 +290,18 @@ public class OilImpGUI implements Runnable
         System.setOut(new PrintStream(out));
         System.setErr(new PrintStream(out));
     }
+    
 
+    private void applyColors()
+    {
+        this.applyColorToAllComponents(this.mainFrame,
+                                       backgroundColor,
+                                       JButton.class,
+                                       JComboBox.class,
+                                       JTextArea.class,
+                                       JTextField.class);
+    }
+    
     private void applyColorToAllComponents(Component comp, Color color, Class ... except)
     {
         boolean changeColor = true;
@@ -328,6 +336,46 @@ public class OilImpGUI implements Runnable
     
     
     
+    private void setOilFieldNames(final String[] oilFieldNames)
+    {
+        Runnable r = new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                for (int t = 0; t < oilFieldNames.length; t++)
+                {
+                    oilFieldBox.addItem(oilFieldNames[t]);
+                }
+            }
+        };
+        EventQueue.invokeLater(r);
+
+        // ComboBox2
+        String[] menuNames = new String[]{FACTORY_ID, REFINERY_ID, STOCK_ID, UTIL_ID};
+        this.menuBox = new JComboBox<>(menuNames);
+        this.menuBox.setFont(FONT_ARIAL_18);
+        this.menuBoxPanel.add(this.menuBox);
+
+
+        // MenuMainPanel -------------------------------------------------------
+        this.menuPanelCards = new CardLayout();
+        this.menuPanel = new JPanel(this.menuPanelCards);
+        this.mainPanel.add(this.menuPanel, BorderLayout.CENTER);
+        
+        this.factoryMenu = new FactoryMenu(this.game, oilFieldNames[0]);
+        this.menuPanel.add(this.factoryMenu, FACTORY_ID);
+//        this.factoryMenu.defaultAction();
+
+        this.refineryMenu = new RefineryMenu(this.game, oilFieldNames[0]);
+        this.menuPanel.add(this.refineryMenu, REFINERY_ID);
+        
+        this.stockMenu = new StockMenu(this.game, oilFieldNames[0]);
+        this.menuPanel.add(this.stockMenu, STOCK_ID);
+        
+        this.utilMenu = new UtilityMenu(game, oilFieldNames[0]);
+        this.menuPanel.add(this.utilMenu, UTIL_ID);
+    }
     
     
     public static void main(String[] args)
@@ -336,6 +384,11 @@ public class OilImpGUI implements Runnable
         OilImp game = new OilImp();
         OilImpGUI oig = new OilImpGUI(game);
         EventQueue.invokeLater(oig);
+        
+        String[] names = game.getOilFieldNames();
+        oig.setOilFieldNames(names);
+        oig.applyColors();
+        oig.setListeners();
     }
 
 
