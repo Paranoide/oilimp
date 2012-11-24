@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import static model.RefineryInformation.*;
 import view.LoginForm;
 
 public class OilImp
@@ -45,9 +46,20 @@ public class OilImp
     
     private int currOilFieldIndex = 0;
     
+    int[] optimalFactoryWorkers;
+    
     public OilImp()
     {
-    
+        this.optimalFactoryWorkers = new int[9];
+        optimalFactoryWorkers[0] = 27;
+        optimalFactoryWorkers[1] = 27;
+        optimalFactoryWorkers[2] = 30;
+        optimalFactoryWorkers[3] = 27;
+        optimalFactoryWorkers[4] = 27;
+        optimalFactoryWorkers[5] = 27;
+        optimalFactoryWorkers[6] = 34;
+        optimalFactoryWorkers[7] = 34;
+        optimalFactoryWorkers[8] = 34;
     }
     
     private InputStream httpGET(String in_url, String ... getParams)
@@ -366,6 +378,14 @@ public class OilImp
         }
     }
 
+    /**
+     * Holt die aktuellen Rohstoff-Preise und steckt sie in ein
+     * 4-elementiges Array. Sind alle Preise = 0, so wird davon ausgegangen,
+     * dass ein Fehler unterlaufen ist (z.B. beim Parsen oder beim Request) und
+     * es wird <code>null</code> zurueckgegeben.
+     * 
+     * @return Die Preise als Array oder <code>null</code> bei einem Fehler
+     */
     public synchronized int[] checkPrices()
     {
         String menu = "m=0xWE01";
@@ -565,7 +585,7 @@ public class OilImp
 
         if (success)
         {
-    
+            
             if (prodNr >= 0 && prodNr < 10)
             {
                 boolean expired = true;
@@ -575,7 +595,9 @@ public class OilImp
 
                 String[] products2 = {"1", "4", "7", "2", "5", "8", "3", "6", "9"};
 
-                String doc = "";
+                this.setFactoryWorkers(this.optimalFactoryWorkers[prodNr]);
+                
+                String doc;
 
                 while (expired)
                 {
@@ -879,6 +901,71 @@ public class OilImp
         
     }
     
+    public void fillAllRefineries()
+    {
+        int memCurrOF = this.currOilFieldIndex;
+        
+        for (int t = 0; t < this.fieldNames.length + 1; t++)
+        {
+            if (t != memCurrOF)
+            {
+                // do the memCurrOF last
+                if (t == this.fieldNames.length)
+                {
+                    t = memCurrOF;
+                }
+                
+                this.changeOilField(this.fieldNames[t]);
+                RefineryInformation ri = this.getRefinery();
+
+                // Shared variable for all kinds of ress
+                int workerAmount = ri.getCurrentWorkers();
+                
+                // Diesel produzieren
+                if (ri.getTimeLeftD() < 0)
+                {
+                    int currD = ri.getCurrentDiesel();
+                    int maxD  = ri.getMaxDiesel();
+                    int currR = ri.getCurrentRohoel();
+                    int toProduce = Math.min(maxD - currD, (int)(currR*RESS_FACTORS[1]));
+                    int workers = Math.min(workerAmount, RESS_MA[1]);
+                    workerAmount -= workers;
+                    this.produceInRefinery(Ressource.DIESEL, (int)(toProduce/RESS_FACTORS[1]), workers);
+                }
+                
+                // Benzin produzieren
+                if (ri.getTimeLeftB() < 0)
+                {
+                    int currB = ri.getCurrentBenzin();
+                    int maxB  = ri.getMaxBenzin();
+                    int currR = ri.getCurrentRohoel();
+                    int toProduce = Math.min(maxB - currB, (int)(currR*RESS_FACTORS[2]));
+                    int workers = Math.min(workerAmount, RESS_MA[2]);
+                    workerAmount -= workers;
+                    this.produceInRefinery(Ressource.BENZIN, (int)(toProduce/RESS_FACTORS[2]), workers);
+                }
+                
+                // Kerosin produzieren
+                if (ri.getTimeLeftK() < 0)
+                {
+                    int currK = ri.getCurrentKerosin();
+                    int maxK  = ri.getMaxKerosin();
+                    int currR = ri.getCurrentRohoel();
+                    int toProduce = Math.min(maxK - currK, (int)(currR*RESS_FACTORS[0]));
+                    int workers = Math.min(workerAmount, RESS_MA[0]);
+                    workerAmount -= workers;
+                    this.produceInRefinery(Ressource.KEROSIN, (int)(toProduce/RESS_FACTORS[0]), workers);
+                }
+                
+                // do the memeCurrOF last
+                if (t == memCurrOF)
+                {
+                    t = this.fieldNames.length;
+                }
+            }
+        }
+    }
+    
     public synchronized String getStockInformation()
     {
         boolean expired = true;
@@ -989,6 +1076,150 @@ public class OilImp
         return true;
     }
     
+    public synchronized boolean hireFactoryWorkers(int n)
+    {
+        boolean success = true;
+        
+        boolean expired = true;
+        String doc;
+        
+        while (expired)
+        {
+            InputStream is = this.httpPOST("http://s1.oilimperium.de/index.php?" + this.sessid,
+                                           "m=0xKL01",
+                                           "a=1",   
+                                           "ein=1",
+                                           "einstellen%5B10%5D=0",
+                                           "einstellen%5B13%5D=" + n,
+                                           "einstellen%5B14%5D=0",
+                                           "einstellen%5B17%5D=0",
+                                           "einstellen%5B1%5D=0",
+                                           "einstellen%5B2%5D=0",
+                                           "einstellen%5B3%5D=0",
+                                           "einstellen%5B4%5D=0",
+                                           "einstellen%5B5%5D=0",
+                                           "einstellen%5B6%5D=0",
+                                           "sid=" + this.sessid);
+            
+            doc = this.responseToString(is);
+            
+//            System.out.println(doc);
+
+            if (this.sessidExpired(doc))
+            {
+                this.login();
+            }
+            else
+            {
+                expired = false;
+                String ofName = this.fieldNames[this.currOilFieldIndex];
+                System.out.println("Successfully hired " + n + " factory workers on field " + ofName);
+            }
+        }
+        
+        return success;
+    }
+    
+    public synchronized boolean fireFactoryWorkers(int n)
+    {
+        boolean success = true;
+        
+        boolean expired = true;
+        String doc;
+        
+        while (expired)
+        {
+            InputStream is = this.httpPOST("http://s1.oilimperium.de/index.php?" + this.sessid,
+                                           "m=0xKL01",
+                                           "a=1",   
+                                           "aus=1",
+                                           "entlassen%5B14%5D%5B14%5D=0",
+                                           "entlassen%5B15%5D%5B14%5D=0",
+                                           "entlassen%5B25%5D%5B4%5D=0",
+                                           "entlassen%5B55%5D%5B13%5D=" + n,
+                                           "entlassen%5B5%5D%5B1%5D=0",
+                                           "entlassen%5B5%5D%5B2%5D=0",
+                                           "entlassen%5B5%5D%5B3%5D=0",
+                                           "sid=" + this.sessid);
+            
+            doc = this.responseToString(is);
+            
+//            System.out.println(doc);
+
+            if (this.sessidExpired(doc))
+            {
+                this.login();
+            }
+            else
+            {
+                expired = false;
+                String ofName = this.fieldNames[this.currOilFieldIndex];
+                System.out.println("Successfully fired " + n + " factory workers on field " + ofName);
+            }
+        }
+        
+        return success;
+    }
+    
+    public synchronized boolean setFactoryWorkers(int n)
+    {
+        boolean success = true;
+        
+        boolean expired = true;
+        String doc;
+        
+        while (expired)
+        {
+            InputStream is = this.httpGET("http://s1.oilimperium.de/index.php",
+                                           "m=0xKL01",
+                                           "a=1",   
+                                           "jnk=" + System.currentTimeMillis(),
+                                           "sid=" + this.sessid);
+            
+            doc = this.responseToString(is);
+            
+            Pattern p = Pattern.compile("Fabrik</td>.*?value=\"([0-9]*?)\"");
+            
+            Matcher m = p.matcher(doc);
+            
+            int currCount = -1;
+            if (m.find())
+            {
+                System.out.println(m.group(1));
+                currCount = Integer.parseInt(m.group(1));
+            }
+            
+            
+            if (currCount > 0)
+            {
+                if (n > currCount)
+                {
+                    this.hireFactoryWorkers(n - currCount);
+                }
+                else if (n < currCount)
+                {
+                    this.fireFactoryWorkers(currCount - n);
+                }
+            }
+            
+            
+//            System.out.println(doc);
+
+            if (this.sessidExpired(doc))
+            {
+                this.login();
+            }
+            else
+            {
+                expired = false;
+                String ofName = this.fieldNames[this.currOilFieldIndex];
+                System.out.println("Successfully set " + n + " factory workers on field " + ofName);
+            }
+        }
+        
+        
+        return success;
+    }
 
     public synchronized boolean changeOilField(String oilFieldName)
     {
@@ -1197,8 +1428,9 @@ public class OilImp
     {
         
         OilImp o = new OilImp();
-        o.changeOilField("Neves");
-        o.repairEQ();
+        o.changeOilField("Tsrif");
+        o.setFactoryWorkers(27);
+//        o.repairEQ();
         
     }
 }

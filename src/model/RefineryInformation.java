@@ -7,6 +7,9 @@ package model;
 public class RefineryInformation
 {
     
+    public static final double[] RESS_FACTORS = {0.75, 0.60, 0.50};
+    public static final int[] RESS_MA         = {40, 27, 37};
+    
     private int currentRohoel;
     private int currentKerosin;
     private int currentDiesel;
@@ -147,6 +150,13 @@ public class RefineryInformation
         return 250000;
     }
 
+    /**
+     * Gibt die Zeit in Sekunden zurueck, die das Kerosin noch in Produktion
+     * verbleibt. Ist kein Kerosin in Produktion, so wird -1 zurueckgegeben.
+     * 
+     * @return Verbleibende Produktionszeit fuer Kerosin. Ist -1, wenn kein
+     *          Kerosin in Produktion ist
+     */
     public int getTimeLeftK()
     {
         return timeLeftK;
@@ -157,6 +167,13 @@ public class RefineryInformation
         this.timeLeftK = timeLeftK;
     }
 
+    /**
+     * Gibt die Zeit in Sekunden zurueck, die das Diesel noch in Produktion
+     * verbleibt. Ist kein Diesel in Produktion, so wird -1 zurueckgegeben.
+     * 
+     * @return Verbleibende Produktionszeit fuer Diesel. Ist -1, wenn kein
+     *          Diesel in Produktion ist
+     */
     public int getTimeLeftD()
     {
         return timeLeftD;
@@ -167,6 +184,13 @@ public class RefineryInformation
         this.timeLeftD = timeLeftD;
     }
 
+    /**
+     * Gibt die Zeit in Sekunden zurueck, die das Benzin noch in Produktion
+     * verbleibt. Ist kein Benzin in Produktion, so wird -1 zurueckgegeben.
+     * 
+     * @return Verbleibende Produktionszeit fuer Benzin. Ist -1, wenn kein
+     *          Benzin in Produktion ist
+     */
     public int getTimeLeftB()
     {
         return timeLeftB;

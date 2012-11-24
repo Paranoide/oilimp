@@ -93,7 +93,14 @@ public class UtilityMenu extends OilImpMenu implements ActionListener
         int[] prices = this.game.checkPrices();
         for (int t = 0; t < 4; t++)
         {
-            this.ressPriceLabels[t].setText(prices[t] + " ");
+            if (prices != null)
+            {
+                this.ressPriceLabels[t].setText(prices[t] + " ");
+            }
+            else
+            {
+                this.ressPriceLabels[t].setText("N/A");
+            }
         }
     }
     
