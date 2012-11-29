@@ -365,7 +365,7 @@ public class OilImpGUI implements Runnable
         
         this.factoryMenu = new FactoryMenu(this.game, oilFieldNames[0]);
         this.menuPanel.add(this.factoryMenu, FACTORY_ID);
-//        this.factoryMenu.defaultAction();
+        this.factoryMenu.defaultAction();
 
         this.refineryMenu = new RefineryMenu(this.game, oilFieldNames[0]);
         this.menuPanel.add(this.refineryMenu, REFINERY_ID);

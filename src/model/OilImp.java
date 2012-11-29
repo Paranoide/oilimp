@@ -617,6 +617,8 @@ public class OilImp
                         expired = false;
                     }
                 }
+                
+                System.out.println("Successfully produced " + products[prodNr] + " in factory");
             }
         }
     }

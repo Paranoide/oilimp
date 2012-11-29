@@ -211,13 +211,7 @@ public class FactoryMenu extends OilImpMenu
                         final int t2 = t;
                         if (ae.getSource() == produceButtons[t])
                         {
-                            new Thread(new Runnable()
-                            {
-                                public void run()
-                                {
-                                    produce(t2, currOilField);
-                                }
-                            }).start();
+                            produce(t2, currOilField);
                         }
                     }
 
@@ -274,27 +268,47 @@ public class FactoryMenu extends OilImpMenu
             {
                 game.changeOilField(oilField);
             }
-            String[][] status = game.getFactory();
-            for (int t = 0; t < status.length; t++)
+            
+            this.setFactoryInformation(factoryInfo, oilField);
+        }
+    }
+    
+    private void setFactoryInformation(FactorySettings fs, String oilField)
+    {
+        final String[][] status = game.getFactory();
+        for (int t = 0; t < status.length; t++)
+        {
+            final int t2 = t;
+            if (oilField.equals(currOilField))
             {
-//                System.out.println(currOilField + " <=> " + oilField + " => " + currOilField.equals(oilField));
-                if (oilField.equals(currOilField))
+                Runnable r = new Runnable()
                 {
-                    eqLabels[t].setText(status[t][0]);
-                    statusLabels[t].setText(status[t][1]);
-                }
-                factoryInfo.setStatus(oilField, t, status[t][1]);
+                    @Override
+                    public void run()
+                    {
+                        eqLabels[t2].setText(status[t2][0]);
+                        statusLabels[t2].setText(status[t2][1]);
+                    }
+                };
+                EventQueue.invokeLater(r);
             }
+            fs.setStatus(oilField, t, status[t][1]);
         }
     }
 
     private void produce(final int t, final String oilField)
     {
-        if (!game.getCurrentOilField().equals(oilField))
+        Runnable r = new Runnable()
         {
-            game.changeOilField(oilField);
-        }
-        game.produceInFactory(t);
+            @Override
+            public void run()
+            {
+                game.changeOilField(oilField);
+                game.produceInFactory(t);
+                defaultAction();
+            }
+        };
+        new Thread(r).start();
     }
 
     @Override
