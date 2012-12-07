@@ -32,8 +32,6 @@ public class RefineryMenu extends OilImpMenu implements ActionListener,
     
     private OilImp game;
     
-    private String currentOilField;
-    
     private JPanel infoPanel;
     private TitledBorder infoPanelBorder;
     private JPanel ressNamePanel;
@@ -88,7 +86,7 @@ public class RefineryMenu extends OilImpMenu implements ActionListener,
     public RefineryMenu(OilImp game, String startOilField)
     {
         this.game = game;
-        this.currentOilField = startOilField;
+        this.currOilField = startOilField;
         
         this.setLayout(new GridLayout(2, 1));
         
@@ -405,12 +403,6 @@ public class RefineryMenu extends OilImpMenu implements ActionListener,
     public void defaultAction()
     {
         this.getRefineryInformation();
-    }
-
-    @Override
-    public void setCurrentOilField(String oilField)
-    {
-        this.currentOilField = oilField;
     }
     
     // Listener methods

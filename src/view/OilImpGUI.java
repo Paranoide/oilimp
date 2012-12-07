@@ -62,6 +62,7 @@ public class OilImpGUI implements Runnable
     private JTextArea logArea;
     private JScrollPane logAreaScroller;
 
+    private String currOilField;
 
     public OilImpGUI(OilImp gameInstance)
     {
@@ -123,7 +124,7 @@ public class OilImpGUI implements Runnable
         this.oilFieldBox.setFont(FONT_ARIAL_18);
         this.oilFieldBoxPanel.add(this.oilFieldBox);
         
-        final String[] oilFieldNames = {"a", "b"}; //this.game.getOilFieldNames();
+//        final String[] oilFieldNames = {"a", "b"}; //this.game.getOilFieldNames();
 //        Runnable r = new Runnable()
 //        {
 //            @Override
@@ -194,6 +195,7 @@ public class OilImpGUI implements Runnable
                         @Override
                         public void run()
                         {
+                            currOilField = oilField;
                             game.changeOilField(oilField);
                             OilImpMenu oim = getCurrentMenu();
                             oim.setCurrentOilField(oilField);
@@ -223,6 +225,7 @@ public class OilImpGUI implements Runnable
                             OilImpMenu oim = getCurrentMenu();
                             if (oim != null)
                             {
+                                oim.setCurrentOilField(currOilField);
                                 oim.defaultAction();
                             }
                         }
@@ -351,6 +354,8 @@ public class OilImpGUI implements Runnable
         };
         EventQueue.invokeLater(r);
 
+        this.currOilField = oilFieldNames[0];
+        
         // ComboBox2
         String[] menuNames = new String[]{FACTORY_ID, REFINERY_ID, STOCK_ID, UTIL_ID};
         this.menuBox = new JComboBox<>(menuNames);

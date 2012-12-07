@@ -8,6 +8,7 @@ import javax.swing.JPanel;
  */
 public abstract class OilImpMenu extends JPanel
 {
+    protected String currOilField = null;
 
     public abstract void reset();
 
@@ -15,5 +16,8 @@ public abstract class OilImpMenu extends JPanel
 
     public abstract void defaultAction();
 
-    public abstract void setCurrentOilField(String oilField);
+    public void setCurrentOilField(String oilField)
+    {
+        this.currOilField = oilField;
+    }
 }

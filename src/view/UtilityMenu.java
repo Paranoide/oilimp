@@ -16,7 +16,6 @@ public class UtilityMenu extends OilImpMenu implements ActionListener
 {
     
     private OilImp game;
-    private String currentOilField;
     
     private JPanel utilityPanel;
     private TitledBorder utilityPanelBorder;
@@ -34,7 +33,7 @@ public class UtilityMenu extends OilImpMenu implements ActionListener
     public UtilityMenu(OilImp game, String currOilField)
     {
         this.game = game;
-        this.currentOilField = currOilField;
+        this.currOilField = currOilField;
         
         this.setLayout(new BorderLayout());
         this.setBorder(createBorder("Verschiedenes", BORDER_FONT, 0));
@@ -120,12 +119,6 @@ public class UtilityMenu extends OilImpMenu implements ActionListener
     public void defaultAction()
     {
         this.setPrices();
-    }
-
-    @Override
-    public void setCurrentOilField(String oilField)
-    {
-        throw new UnsupportedOperationException("Not supported yet.");
     }
     
     

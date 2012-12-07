@@ -45,7 +45,6 @@ public class FactoryMenu extends OilImpMenu
 
     private JTextField refreshRateField;
     
-    private String currOilField = "";
     private Thread autoThread;
     private long refreshRate = 6*60000 + 10000;
     private boolean threadIsRunning = false;
@@ -314,39 +313,40 @@ public class FactoryMenu extends OilImpMenu
     @Override
     public void setCurrentOilField(String oilField)
     {
-        synchronized (factoryInfo)
-        {
-            this.currOilField = oilField;
-            
-            String[] knownFields = this.factoryInfo.getOilFields();
-            boolean known = false;
-            for (int t = 0; t < knownFields.length && !known; t++)
-            {
-                if (knownFields[t].equals(oilField))
-                {
-                    known = true;
-                }
-            }
-            System.out.println("Known: " + known);
-            if (known)
-            {
-                Boolean[] autos = this.factoryInfo.getAuto(oilField);
-                String[] status = this.factoryInfo.getStatus(oilField);
-                for (int t = 0; t < 9; t++)
-                {
-                    this.autoCheckBoxes[t].setSelected(autos[t].booleanValue());
-                    this.statusLabels[t].setText(status[t]);
-                }
-            }
-            else
-            {
-                for (int t = 0; t < 9; t++)
-                {
-                    this.autoCheckBoxes[t].setSelected(false);
-                    this.statusLabels[t].setText("---");
-                }
-            }
-        }
+//        synchronized (factoryInfo)
+//        {
+//            this.currOilField = oilField;
+//            
+//            String[] knownFields = this.factoryInfo.getOilFields();
+//            boolean known = false;
+//            for (int t = 0; t < knownFields.length && !known; t++)
+//            {
+//                if (knownFields[t].equals(oilField))
+//                {
+//                    known = true;
+//                }
+//            }
+//            System.out.println("Known: " + known);
+//            if (known)
+//            {
+//                Boolean[] autos = this.factoryInfo.getAuto(oilField);
+//                String[] status = this.factoryInfo.getStatus(oilField);
+//                for (int t = 0; t < 9; t++)
+//                {
+//                    this.autoCheckBoxes[t].setSelected(autos[t].booleanValue());
+//                    this.statusLabels[t].setText(status[t]);
+//                }
+//            }
+//            else
+//            {
+//                for (int t = 0; t < 9; t++)
+//                {
+//                    this.autoCheckBoxes[t].setSelected(false);
+//                    this.statusLabels[t].setText("---");
+//                }
+//            }
+//        }
+        super.setCurrentOilField(oilField);
     }
 
     public boolean isAutoThreadWorking()
