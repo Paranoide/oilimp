@@ -4,8 +4,13 @@ import java.awt.event.*;
 import java.io.*;
 import java.net.*;
 import java.text.DateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.Deque;
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import static model.RefineryInformation.*;
@@ -1222,6 +1227,132 @@ public class OilImp
         
         return success;
     }
+    
+    public synchronized Map<String, List<Equipment>> getWarehouses()
+    {
+        Map<String, List<Equipment>> eqs = new HashMap<>();
+        
+        int memField = this.currOilFieldIndex;
+        List<Equipment> eq = this.getWarehouse();
+        eqs.put(this.fieldNames[memField], eq);
+        
+        for (int t = 0; t < this.fields.length; t++)
+        {
+            if (t != memField)
+            {
+                this.changeOilField(t);
+                eq = this.getWarehouse();
+                eqs.put(this.fieldNames[t], eq);
+            }
+        }
+        this.changeOilField(memField);
+        
+        return eqs;
+        
+    }
+    
+    public List<Equipment> getWarehouse(String oilField)
+    {
+        int memField = this.currOilFieldIndex;
+        this.changeOilField(oilField);
+        List<Equipment> eq = this.getWarehouse();
+        this.changeOilField(memField);
+        return eq;
+    }
+    
+    private List<Equipment> getWarehouse()
+    {
+        boolean expired = true;
+        String doc;
+        List<Equipment> eq = new ArrayList<>();
+        
+        while (expired)
+        {
+            InputStream is = this.httpGET("http://s1.oilimperium.de/index.php",
+                                           "m=0xSA11",
+                                           "jnk=" + System.currentTimeMillis(),
+                                           "sid=" + this.sessid);
+            
+            doc = this.responseToString(is);
+            
+            String name, status, price;
+            LinkedList<String> names = new LinkedList<>();
+            LinkedList<String> statuses = new LinkedList<>();
+            LinkedList<String> prices = new LinkedList<>();
+            
+            Pattern pName   = Pattern.compile("<td style=\"height:20px; width:70px; padding-left:3px;\" class=\"txt5\">(.*?)</td>");
+            Pattern pStatus = Pattern.compile("<td style=\"text-align:center; width:65px;\" class=\"txt5\">(.*?) %</td>");
+            Pattern pPrice  = Pattern.compile("<td style=\"text-align:center; width:80px;\" class=\"txt5\"> (.*?) \\$");
+            
+            Matcher mName   = pName.matcher(doc);
+            Matcher mStatus = pStatus.matcher(doc);
+            Matcher mPrice  = pPrice.matcher(doc);
+            
+            while (mName.find())
+            {
+                name = mName.group(1);
+                names.add(name);
+            }
+            
+            while (mStatus.find())
+            {
+                status = mStatus.group(1);
+                statuses.add(status);
+            }
+            
+            while (mPrice.find())
+            {
+                price = mPrice.group(1);
+                prices.add(price);
+            }
+            
+            boolean success = (names.size()  == statuses.size()) &&
+                              (prices.size() == statuses.size());
+            
+            if (success)
+            {
+                for (int t = 0; t < names.size(); t++)
+                {
+                    try
+                    {
+                        String eName = names.get(t);
+                        double eStatus = Double.parseDouble(statuses.get(t));
+                        int ePrice = Integer.parseInt(prices.get(t).replace(".", ""));
+                        Equipment e = new Equipment(eName, eStatus, ePrice);
+                        eq.add(e);
+                    }
+                    catch (NumberFormatException nfe)
+                    {
+                        System.err.println(nfe.getMessage());
+                        success = false;
+                    }
+                }
+            }
+            
+//            System.out.println(doc);
+
+            if (this.sessidExpired(doc))
+            {
+                this.login();
+            }
+            else
+            {
+                expired = false;
+                String ofName = this.fieldNames[this.currOilFieldIndex];
+                
+                if (success)
+                {
+                    System.out.println("Successfully retrieved warehouse information on field " + ofName);
+                }
+                else
+                {
+                    System.out.println("Error while retrieving warehouse information on field " + ofName);
+                }
+            }
+        }
+        
+        return eq;
+    }
 
     public synchronized boolean changeOilField(String oilFieldName)
     {
@@ -1431,8 +1562,7 @@ public class OilImp
         
         OilImp o = new OilImp();
         o.changeOilField("Tsrif");
-        o.setFactoryWorkers(27);
-//        o.repairEQ();
+        System.out.println(o.getWarehouses());
         
     }
 }
