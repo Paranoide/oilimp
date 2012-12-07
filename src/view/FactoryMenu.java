@@ -261,37 +261,90 @@ public class FactoryMenu extends OilImpMenu
 
     private void getFactoryStatus(final String oilField)
     {
-        synchronized (factoryInfo)
+        new Thread(new Runnable()
         {
-            if (!game.getCurrentOilField().equals(oilField))
+            @Override
+            public void run()
             {
-                game.changeOilField(oilField);
+                synchronized (factoryInfo)
+                {
+                    if (!game.getCurrentOilField().equals(oilField))
+                    {
+                        game.changeOilField(oilField);
+                    }
+
+                    setFactoryInformation(oilField);
+                }
             }
-            
-            this.setFactoryInformation(factoryInfo, oilField);
-        }
+        }).start();
+        
+        
     }
     
-    private void setFactoryInformation(FactorySettings fs, String oilField)
+    /**
+     * Holt die FactoryInformation und die FactorySettings fuer ein Oelfeld
+     * und aktualisiert die  FactorySettings. Ist das Oelfeld das aktuelle Feld,
+     * so werden die Informationen in die Labels eingetragen und die aktuell
+     * ausgewaehlten  CheckBoxen entsprechend aktiviert bzw. deaktiviert.
+     * @param oilField Das Oelfeld, fuer das die Informationen angezeigt und
+     *                  aktualisiert werden sollen.
+     */
+    private void setFactoryInformation(String oilField)
     {
-        final String[][] status = game.getFactory();
-        for (int t = 0; t < status.length; t++)
+        // Gespeicherte Daten eintragen
+        synchronized (factoryInfo)
         {
-            final int t2 = t;
-            if (oilField.equals(currOilField))
+            this.currOilField = oilField;
+            
+            String[] knownFields = this.factoryInfo.getOilFields();
+            boolean known = false;
+            for (int t = 0; t < knownFields.length && !known; t++)
             {
-                Runnable r = new Runnable()
+                if (knownFields[t].equals(oilField))
                 {
-                    @Override
-                    public void run()
-                    {
-                        eqLabels[t2].setText(status[t2][0]);
-                        statusLabels[t2].setText(status[t2][1]);
-                    }
-                };
-                EventQueue.invokeLater(r);
+                    known = true;
+                }
             }
-            fs.setStatus(oilField, t, status[t][1]);
+            System.out.println("Known: " + known);
+            if (known)
+            {
+                Boolean[] autos = this.factoryInfo.getAuto(oilField);
+                String[] status = this.factoryInfo.getStatus(oilField);
+                for (int t = 0; t < 9; t++)
+                {
+                    this.autoCheckBoxes[t].setSelected(autos[t].booleanValue());
+                    this.statusLabels[t].setText(status[t]);
+                }
+            }
+            else
+            {
+                for (int t = 0; t < 9; t++)
+                {
+                    this.autoCheckBoxes[t].setSelected(false);
+                    this.statusLabels[t].setText("---");
+                }
+            }
+        
+            // Neue Daten holen und eintragen
+            final String[][] status = game.getFactory();
+            for (int t = 0; t < status.length; t++)
+            {
+                final int t2 = t;
+                if (oilField.equals(currOilField))
+                {
+                    Runnable r = new Runnable()
+                    {
+                        @Override
+                        public void run()
+                        {
+                            eqLabels[t2].setText(status[t2][0]);
+                            statusLabels[t2].setText(status[t2][1]);
+                        }
+                    };
+                    EventQueue.invokeLater(r);
+                }
+                factoryInfo.setStatus(oilField, t, status[t][1]);
+            }
         }
     }
 
@@ -310,45 +363,11 @@ public class FactoryMenu extends OilImpMenu
         new Thread(r).start();
     }
 
-    @Override
-    public void setCurrentOilField(String oilField)
-    {
-//        synchronized (factoryInfo)
-//        {
-//            this.currOilField = oilField;
-//            
-//            String[] knownFields = this.factoryInfo.getOilFields();
-//            boolean known = false;
-//            for (int t = 0; t < knownFields.length && !known; t++)
-//            {
-//                if (knownFields[t].equals(oilField))
-//                {
-//                    known = true;
-//                }
-//            }
-//            System.out.println("Known: " + known);
-//            if (known)
-//            {
-//                Boolean[] autos = this.factoryInfo.getAuto(oilField);
-//                String[] status = this.factoryInfo.getStatus(oilField);
-//                for (int t = 0; t < 9; t++)
-//                {
-//                    this.autoCheckBoxes[t].setSelected(autos[t].booleanValue());
-//                    this.statusLabels[t].setText(status[t]);
-//                }
-//            }
-//            else
-//            {
-//                for (int t = 0; t < 9; t++)
-//                {
-//                    this.autoCheckBoxes[t].setSelected(false);
-//                    this.statusLabels[t].setText("---");
-//                }
-//            }
-//        }
-        super.setCurrentOilField(oilField);
-    }
-
+    /**
+     * Ueberprueft, ob der AutoThread zurzeit laeuft oder nicht.
+     * @return <code>true</code>, genau dann wenn der AutoThread zurzeit
+     *          laeuft, sonst <code>false</code>
+     */
     public boolean isAutoThreadWorking()
     {
         return this.threadIsRunning;
@@ -396,14 +415,7 @@ public class FactoryMenu extends OilImpMenu
     @Override
     public void defaultAction()
     {
-        new Thread(new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                getFactoryStatus();
-            }
-        }).start();
+        getFactoryStatus();
     }
 
     @Override
