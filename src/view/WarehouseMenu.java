@@ -15,49 +15,133 @@ import java.util.Map;
  *
  * @author Paranoide
  */
-public class WarehouseMenu extends OilImpMenu
+public class WarehouseMenu extends OilImpMenu implements ActionListener
 {
     private OilImp game;
+    private OilImpGUI parent;
     
-    public WarehouseMenu(OilImp game, String startOilField)
+    private JPanel mainPanel;
+    private JPanel headerPanel;
+    private JPanel scrollPanel;
+    private JButton getInfoButton;
+    
+    public WarehouseMenu(OilImp game, String startOilField, OilImpGUI parent)
     {
         this.game = game;
-        this.currOilField = startOilField; 
+        this.currOilField = startOilField;
+        this.parent = parent;
         
-        Map<String, List<Equipment>> eqs = game.getWarehouses();
-        
-//        this.setLayout(new GridLayout(eqs.size(), 1));
         this.setLayout(new BorderLayout(5, 5));
         
-//        JPanel scrollPanel = new JPanel(new GridLayout(0, 1));
-        JPanel scrollPanel = new JPanel();
-        scrollPanel.setLayout(new BoxLayout(scrollPanel, BoxLayout.Y_AXIS));
-        JScrollPane jsp = new JScrollPane(scrollPanel);
-        this.add(jsp, BorderLayout.CENTER);
+        this.mainPanel = new JPanel(new BorderLayout());
+        this.add(mainPanel, BorderLayout.CENTER);
         
-        Dimension d = this.getPreferredSize();
-        d = new Dimension(d.width, d.height + 100);
-        this.setPreferredSize(d);
-        
-        String[] fieldNames = this.game.getOilFieldNames();
-        for (int t = 0; t < fieldNames.length; t++)
+        String[] headers = {"EQ", "Status", "Preis", "Reparieren"};
+        this.headerPanel = new JPanel(new GridLayout(1, headers.length));
+        JLabel[] headerLabels = new JLabel[headers.length];
+        for (int t = 0; t < headers.length; t++)
         {
-            String f = fieldNames[t];
-            if (eqs.containsKey(f))
-            {
-                EQBox eqb = new EQBox(f, eqs.get(f));
-                scrollPanel.add(eqb);
-            }
+            headerLabels[t] = new JLabel(headers[t]);
+            headerLabels[t].setFont(HEADLINE_FONT);
+            this.headerPanel.add(headerLabels[t]);
         }
+        mainPanel.add(headerPanel, BorderLayout.NORTH);
         
+        this.scrollPanel = new JPanel();
+        this.scrollPanel.setLayout(new BoxLayout(scrollPanel, BoxLayout.Y_AXIS));
+        
+        this.getInfoButton = new JButton("Get warehouses"); 
+        this.getInfoButton.addActionListener(this);
+        
+        this.reset();
     }
     
+    public void getWarehouseInformation()
+    {
+        this.clearPanel();
+        
+        new Thread(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                Map<String, List<Equipment>> eqs = game.getWarehouses();
+
+                JScrollPane jsp = new JScrollPane(scrollPanel);
+                mainPanel.add(jsp, BorderLayout.CENTER);
+
+                createEQBoxes(eqs);
+            }
+        }).start();
+    }
     
+    private void createEQBoxes(final Map<String, List<Equipment>> eqs)
+    {
+        Runnable r = new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                
+                mainPanel.add(headerPanel, BorderLayout.NORTH);
+                mainPanel.setLayout(new BorderLayout());
+                
+                String[] fieldNames = game.getOilFieldNames();
+                
+                for (int t = 0; t < fieldNames.length; t++)
+                {
+                    String f = fieldNames[t];
+                    if (eqs.containsKey(f))
+                    {
+                        EQBox eqb = new EQBox(f, eqs.get(f));
+                        scrollPanel.add(eqb);
+                    }
+                }
+                mainPanel.add(scrollPanel, BorderLayout.CENTER);
+                
+                invalidate();
+                updateUI();
+                
+                if (parent != null)
+                {
+                    parent.applyColors();
+                }
+            }
+        };
+        EventQueue.invokeLater(r);
+    }
+    
+    private void clearPanel()
+    {
+        Runnable r = new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                scrollPanel.removeAll();
+                scrollPanel.invalidate();
+                scrollPanel.updateUI();
+                mainPanel.removeAll();
+                mainPanel.invalidate();
+                mainPanel.updateUI();
+            }
+        };
+        EventQueue.invokeLater(r);
+    }
 
     @Override
     public void reset()
     {
-        throw new UnsupportedOperationException("Not supported yet.");
+        this.clearPanel();
+        Runnable r = new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                mainPanel.add(getInfoButton, BorderLayout.CENTER);
+            }
+        };
+        EventQueue.invokeLater(r);
     }
 
     @Override
@@ -69,7 +153,17 @@ public class WarehouseMenu extends OilImpMenu
     @Override
     public void defaultAction()
     {
-        throw new UnsupportedOperationException("Not supported yet.");
+        this.reset();
+    }
+    
+    // LISTENER
+    @Override
+    public void actionPerformed(ActionEvent ae)
+    {
+        if (ae.getSource() == this.getInfoButton)
+        {
+            this.getWarehouseInformation();
+        }
     }
     
     
@@ -120,9 +214,10 @@ public class WarehouseMenu extends OilImpMenu
         OilImp game = new OilImp();
         game.changeOilField("Tsrif");
         
-        WarehouseMenu wm = new WarehouseMenu(game, "Tsrif");
+        WarehouseMenu wm = new WarehouseMenu(game, "Tsrif", null);
         
         f.add(wm);
+        f.setSize(500, 400);
         f.setVisible(true);
     }
 }

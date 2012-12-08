@@ -53,6 +53,9 @@ public class OilImpGUI implements Runnable
     private StockMenu stockMenu;
     private final String STOCK_ID = "Aktien";
     
+    private WarehouseMenu warehouseMenu;
+    private final String WAREHOUSE_ID = "Lager";
+    
     private UtilityMenu utilMenu;
     private final String UTIL_ID = "Verschiedenes";
     
@@ -295,7 +298,7 @@ public class OilImpGUI implements Runnable
     }
     
 
-    private void applyColors()
+    public void applyColors()
     {
         this.applyColorToAllComponents(this.mainFrame,
                                        backgroundColor,
@@ -357,7 +360,11 @@ public class OilImpGUI implements Runnable
         this.currOilField = oilFieldNames[0];
         
         // ComboBox2
-        String[] menuNames = new String[]{FACTORY_ID, REFINERY_ID, STOCK_ID, UTIL_ID};
+        String[] menuNames = new String[]{FACTORY_ID,
+                                          REFINERY_ID,
+                                          STOCK_ID,
+                                          WAREHOUSE_ID,
+                                          UTIL_ID};
         this.menuBox = new JComboBox<>(menuNames);
         this.menuBox.setFont(FONT_ARIAL_18);
         this.menuBoxPanel.add(this.menuBox);
@@ -377,6 +384,9 @@ public class OilImpGUI implements Runnable
         
         this.stockMenu = new StockMenu(this.game, oilFieldNames[0]);
         this.menuPanel.add(this.stockMenu, STOCK_ID);
+        
+        this.warehouseMenu = new WarehouseMenu(game, oilFieldNames[0], this);
+        this.menuPanel.add(this.warehouseMenu, WAREHOUSE_ID);
         
         this.utilMenu = new UtilityMenu(game, oilFieldNames[0]);
         this.menuPanel.add(this.utilMenu, UTIL_ID);
