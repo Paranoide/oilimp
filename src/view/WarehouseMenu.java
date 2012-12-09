@@ -9,6 +9,8 @@ import java.util.List;
 import static util.OilImpDesignFactory.*;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
 
 /**
@@ -20,10 +22,15 @@ public class WarehouseMenu extends OilImpMenu implements ActionListener
     private OilImp game;
     private OilImpGUI parent;
     
-    private JPanel mainPanel;
+    private JPanel warehousePanel;
     private JPanel headerPanel;
     private JPanel scrollPanel;
+    
+    private JPanel buttonPanel;
     private JButton getInfoButton;
+    
+    
+    
     
     public WarehouseMenu(OilImp game, String startOilField, OilImpGUI parent)
     {
@@ -33,11 +40,13 @@ public class WarehouseMenu extends OilImpMenu implements ActionListener
         
         this.setLayout(new BorderLayout(5, 5));
         
-        this.mainPanel = new JPanel(new BorderLayout());
-        this.add(mainPanel, BorderLayout.CENTER);
         
-        String[] headers = {"EQ", "Status", "Preis", "Reparieren"};
-        this.headerPanel = new JPanel(new GridLayout(1, headers.length));
+        // ---------------------------------------------------------------------
+        this.warehousePanel = new JPanel(new BorderLayout());
+        
+        String[] headers = {"EQ", "Status", "Preis", "Aktionen"};
+        this.headerPanel = new JPanel(new GridLayout(1, headers.length + 1));
+        this.headerPanel.setBorder(createBorder("", HEADLINE_FONT, 1));
         JLabel[] headerLabels = new JLabel[headers.length];
         for (int t = 0; t < headers.length; t++)
         {
@@ -45,13 +54,22 @@ public class WarehouseMenu extends OilImpMenu implements ActionListener
             headerLabels[t].setFont(HEADLINE_FONT);
             this.headerPanel.add(headerLabels[t]);
         }
-        mainPanel.add(headerPanel, BorderLayout.NORTH);
+        this.headerPanel.add(new JPanel());
         
-        this.scrollPanel = new JPanel();
+        this.scrollPanel = new ScrollablePanel();
         this.scrollPanel.setLayout(new BoxLayout(scrollPanel, BoxLayout.Y_AXIS));
+        // ---------------------------------------------------------------------
+        
+        
+        
+        // ---------------------------------------------------------------------
+        this.buttonPanel = new JPanel(new GridLayout(1, 1));
         
         this.getInfoButton = new JButton("Get warehouses"); 
         this.getInfoButton.addActionListener(this);
+        this.buttonPanel.add(this.getInfoButton);
+        
+        // ---------------------------------------------------------------------
         
         this.reset();
     }
@@ -65,11 +83,30 @@ public class WarehouseMenu extends OilImpMenu implements ActionListener
             @Override
             public void run()
             {
+                // Aus Model requesten
                 Map<String, List<Equipment>> eqs = game.getWarehouses();
-
-                JScrollPane jsp = new JScrollPane(scrollPanel);
-                mainPanel.add(jsp, BorderLayout.CENTER);
-
+                
+//                // TESTDATEN -------
+//                Map<String, List<Equipment>> eqs = new HashMap<>();
+//                
+//                // Erstes
+//                String name = "Tsrif";
+//                LinkedList<Equipment> eqList = new LinkedList<>();
+//                eqList.add(new Equipment(Equipment.EQName.TANK_A, 99.3, 12345));
+//                eqList.add(new Equipment(Equipment.EQName.TANK_B, 39.3, 44444));
+//                eqList.add(new Equipment(Equipment.EQName.TANK_C, 50.5, 23423));
+//                eqs.put(name, eqList);
+//                
+//                // Zweites
+//                name = "Dnoces";
+//                eqList = new LinkedList<>();
+//                eqList.add(new Equipment(Equipment.EQName.BOHRTURM_A, 99, 50000));
+//                eqList.add(new Equipment(Equipment.EQName.BOHRTURM_B, 20, 60000));
+//                eqList.add(new Equipment(Equipment.EQName.BOHRTURM_C, 100, 70000));
+//                eqList.add(new Equipment(Equipment.EQName.PIPELINE_B, 60.5, 111111));
+//                eqs.put(name, eqList);
+//                System.out.println(eqs);
+                
                 createEQBoxes(eqs);
             }
         }).start();
@@ -82,9 +119,12 @@ public class WarehouseMenu extends OilImpMenu implements ActionListener
             @Override
             public void run()
             {
+                warehousePanel.setLayout(new BorderLayout());
+                warehousePanel.add(headerPanel, BorderLayout.NORTH);
                 
-                mainPanel.add(headerPanel, BorderLayout.NORTH);
-                mainPanel.setLayout(new BorderLayout());
+                scrollPanel = new ScrollablePanel();
+                BoxLayout boxLayout = new BoxLayout(scrollPanel, BoxLayout.Y_AXIS);
+                scrollPanel.setLayout(boxLayout);
                 
                 String[] fieldNames = game.getOilFieldNames();
                 
@@ -97,7 +137,13 @@ public class WarehouseMenu extends OilImpMenu implements ActionListener
                         scrollPanel.add(eqb);
                     }
                 }
-                mainPanel.add(scrollPanel, BorderLayout.CENTER);
+                JScrollPane jsp = new JScrollPane(scrollPanel,
+                                    JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
+                                    JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+                jsp.setViewportView(scrollPanel);
+                warehousePanel.add(jsp, BorderLayout.CENTER);
+                
+                add(warehousePanel, BorderLayout.CENTER);
                 
                 invalidate();
                 updateUI();
@@ -118,12 +164,12 @@ public class WarehouseMenu extends OilImpMenu implements ActionListener
             @Override
             public void run()
             {
-                scrollPanel.removeAll();
-                scrollPanel.invalidate();
-                scrollPanel.updateUI();
-                mainPanel.removeAll();
-                mainPanel.invalidate();
-                mainPanel.updateUI();
+                warehousePanel.removeAll();
+                warehousePanel.invalidate();
+                warehousePanel.updateUI();
+                removeAll();
+                invalidate();
+                updateUI();
             }
         };
         EventQueue.invokeLater(r);
@@ -138,7 +184,7 @@ public class WarehouseMenu extends OilImpMenu implements ActionListener
             @Override
             public void run()
             {
-                mainPanel.add(getInfoButton, BorderLayout.CENTER);
+                add(buttonPanel, BorderLayout.CENTER);
             }
         };
         EventQueue.invokeLater(r);
@@ -178,26 +224,40 @@ public class WarehouseMenu extends OilImpMenu implements ActionListener
         {
             int eqCount = eq.length;
             
-            this.setLayout(new GridLayout(eqCount, 4));
+            this.setLayout(new GridLayout(eqCount, 5));
             
             for (int t = 0; t < eqCount; t++)
             {
                 JLabel nameLabel   = new JLabel(eq[t].getEQName().getName());
                 nameLabel.setFont(LABEL_FONT);
+                this.add(nameLabel);
                 
                 JLabel statusLabel = new JLabel(eq[t].getStatus() + "");
                 statusLabel.setFont(LABEL_FONT);
+                this.add(statusLabel);
                 
                 JLabel priceLabel  = new JLabel(eq[t].getPrice() + "");
                 priceLabel.setFont(LABEL_FONT);
-                
-                JButton repairButton = new JButton("Repair");
-                repairButton.setFont(BUTTON_FONT);
-                
-                this.add(nameLabel);
-                this.add(statusLabel);
                 this.add(priceLabel);
-                this.add(repairButton);
+                
+                JPanel buttonPanel = new JPanel(new GridLayout(1, 2));
+                JButton sellButton = new JButton("Verkaufen");
+                sellButton.setFont(BUTTON_FONT);
+                this.add(sellButton);
+                
+                boolean yep = new java.util.Random().nextBoolean();
+                yep = true;
+                if (eq[t].getStatus() < 100 || yep)
+                {
+                    JButton repairButton = new JButton("Reparieren");
+                    repairButton.setFont(BUTTON_FONT);
+                    this.add(repairButton);
+                }
+                else
+                {
+                    this.add(new JPanel());
+                }
+//                this.add(buttonPanel);
                 
             }
             
