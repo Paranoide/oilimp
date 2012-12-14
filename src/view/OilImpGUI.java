@@ -111,6 +111,8 @@ public class OilImpGUI implements Runnable
         ((GridLayout)this.comboBoxesPanel.getLayout()).setVgap(10);
         this.mainPanel.add(this.comboBoxesPanel, BorderLayout.NORTH);
 
+        
+        
         this.oilFieldBoxPanel = new JPanel();
         this.oilFieldBoxPanelBorder = createBorder("Oil Field", FONT_CALIBRI_22_B, 0);
         this.oilFieldBoxPanel.setBorder(this.oilFieldBoxPanelBorder);

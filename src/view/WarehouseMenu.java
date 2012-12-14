@@ -65,7 +65,7 @@ public class WarehouseMenu extends OilImpMenu implements ActionListener
         // ---------------------------------------------------------------------
         this.buttonPanel = new JPanel(new GridLayout(1, 1));
         
-        this.getInfoButton = new JButton("Get warehouses"); 
+        this.getInfoButton = new JButton("Lager holen"); 
         this.getInfoButton.addActionListener(this);
         this.buttonPanel.add(this.getInfoButton);
         
@@ -246,7 +246,7 @@ public class WarehouseMenu extends OilImpMenu implements ActionListener
                 this.add(sellButton);
                 
                 boolean yep = new java.util.Random().nextBoolean();
-                yep = true;
+                yep = false;
                 if (eq[t].getStatus() < 100 || yep)
                 {
                     JButton repairButton = new JButton("Reparieren");
