@@ -241,13 +241,12 @@ public class WarehouseMenu extends OilImpMenu implements ActionListener
                 this.add(priceLabel);
                 
                 JPanel buttonPanel = new JPanel(new GridLayout(1, 2));
-                JButton sellButton = new JButton("Verkaufen");
+                JButton sellButton = new JButton("Konzern");
                 sellButton.setFont(BUTTON_FONT);
                 this.add(sellButton);
                 
-                boolean yep = new java.util.Random().nextBoolean();
-                yep = true;
-                if (eq[t].getStatus() < 100 || yep)
+//                boolean yep = new java.util.Random().nextBoolean();
+                if (eq[t].getStatus() < 100)
                 {
                     JButton repairButton = new JButton("Reparieren");
                     repairButton.setFont(BUTTON_FONT);
