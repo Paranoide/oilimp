@@ -865,7 +865,7 @@ public class OilImp
         boolean expired = true;
 
 
-        String doc;
+        String doc = "";
 
         while (expired)
         {
@@ -935,9 +935,12 @@ public class OilImp
                     int maxD  = ri.getMaxDiesel();
                     int currR = ri.getCurrentRohoel();
                     int toProduce = Math.min(maxD - currD, (int)(currR*RESS_FACTORS[1]));
-                    int workers = Math.min(workerAmount, RESS_MA[1]);
-                    workerAmount -= workers;
-                    this.produceInRefinery(Ressource.DIESEL, (int)(toProduce/RESS_FACTORS[1]), workers);
+                    if (toProduce > 0)
+                    {
+                        int workers = Math.min(workerAmount, RESS_MA[1]);
+                        workerAmount -= workers;
+                        this.produceInRefinery(Ressource.DIESEL, (int)(toProduce/RESS_FACTORS[1]), workers);
+                    }
                 }
                 
                 // Benzin produzieren
@@ -947,9 +950,12 @@ public class OilImp
                     int maxB  = ri.getMaxBenzin();
                     int currR = ri.getCurrentRohoel();
                     int toProduce = Math.min(maxB - currB, (int)(currR*RESS_FACTORS[2]));
-                    int workers = Math.min(workerAmount, RESS_MA[2]);
-                    workerAmount -= workers;
-                    this.produceInRefinery(Ressource.BENZIN, (int)(toProduce/RESS_FACTORS[2]), workers);
+                    if (toProduce > 0)
+                    {
+                        int workers = Math.min(workerAmount, RESS_MA[2]);
+                        workerAmount -= workers;
+                        this.produceInRefinery(Ressource.BENZIN, (int)(toProduce/RESS_FACTORS[2]), workers);
+                    }
                 }
                 
                 // Kerosin produzieren
@@ -959,9 +965,12 @@ public class OilImp
                     int maxK  = ri.getMaxKerosin();
                     int currR = ri.getCurrentRohoel();
                     int toProduce = Math.min(maxK - currK, (int)(currR*RESS_FACTORS[0]));
-                    int workers = Math.min(workerAmount, RESS_MA[0]);
-                    workerAmount -= workers;
-                    this.produceInRefinery(Ressource.KEROSIN, (int)(toProduce/RESS_FACTORS[0]), workers);
+                    if (toProduce > 0)
+                    {
+                        int workers = Math.min(workerAmount, RESS_MA[0]);
+                        workerAmount -= workers;
+                        this.produceInRefinery(Ressource.KEROSIN, (int)(toProduce/RESS_FACTORS[0]), workers);
+                    }
                 }
                 
                 // do the memeCurrOF last
@@ -1561,8 +1570,8 @@ public class OilImp
     {
         
         OilImp o = new OilImp();
-        o.changeOilField("Tsrif");
-        System.out.println(o.getWarehouses());
+        o.changeOilField("Neves");
+        o.fillAllRefineries();
         
     }
 }
